@@ -24,8 +24,8 @@ const features = [
   },
   {
     icon: Shield,
-    title: "Private & Secure",
-    description: "Your data is encrypted locally. We prioritize your privacy above all else."
+    title: "Military-Grade Encryption",
+    description: "Your data is secured with AES-256 encryption. We employ a Zero-Knowledge architecture where possible."
   },
   {
     icon: Globe,

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "motion/react";
-import { Play, Pause, Volume2, Loader2 } from "lucide-react";
+import { Play, Pause, Volume2, Loader2, Headphones } from "lucide-react";
 import { generateSpeech } from "../services/gemini";
 
 export default function TTSDemo() {
@@ -50,6 +50,7 @@ export default function TTSDemo() {
         <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 backdrop-blur-sm relative overflow-hidden">
           {/* Decorative background */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[64px] -translate-y-1/2 translate-x-1/2" />
+          <Headphones className="absolute -bottom-12 -left-12 w-64 h-64 text-white/[0.03] rotate-12 pointer-events-none" />
           
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-6">
@@ -68,6 +69,7 @@ export default function TTSDemo() {
                 onChange={(e) => setText(e.target.value)}
                 className="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors h-32 resize-none"
                 placeholder="Type something to listen..."
+                aria-label="Text to speech input"
               />
 
               <div className="flex items-center justify-between">

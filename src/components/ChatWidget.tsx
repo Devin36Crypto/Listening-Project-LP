@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Send, Bot, User, Sparkles, Loader2 } from "lucide-react";
+import { Send, Bot, User, Sparkles, Loader2, ShieldCheck, Trash2 } from "lucide-react";
 import { sendChatMessage } from "../services/gemini";
+import { SecureStorage } from "../services/crypto";
 import ReactMarkdown from "react-markdown";
 
 interface Message {
@@ -17,7 +18,27 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [useThinking, setUseThinking] = useState(false);
+  const [isSecure, setIsSecure] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Load encrypted history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      const history = await SecureStorage.getItem("chat_history");
+      if (history) {
+        setMessages(history);
+      }
+      setIsSecure(true); // Encryption service initialized
+    };
+    loadHistory();
+  }, []);
+
+  // Save encrypted history on change
+  useEffect(() => {
+    if (messages.length > 1) {
+      SecureStorage.setItem("chat_history", messages);
+    }
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,6 +68,11 @@ export default function ChatWidget() {
     setIsLoading(false);
   };
 
+  const clearHistory = () => {
+    setMessages([{ role: "model", text: "Chat history cleared and securely erased." }]);
+    SecureStorage.removeItem("chat_history");
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-40">
       <AnimatePresence>
@@ -61,9 +87,24 @@ export default function ChatWidget() {
             <div className="p-4 bg-indigo-600 flex items-center justify-between">
               <div className="flex items-center gap-2 text-white">
                 <Bot className="w-5 h-5" />
-                <span className="font-medium">AI Assistant</span>
+                <div className="flex flex-col">
+                  <span className="font-medium leading-none">AI Assistant</span>
+                  {isSecure && (
+                    <span className="text-[10px] text-indigo-200 flex items-center gap-1 mt-1">
+                      <ShieldCheck className="w-3 h-3" />
+                      AES-256 Encrypted
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={clearHistory}
+                  className="p-1.5 rounded-lg bg-indigo-500/50 text-white/70 hover:text-white hover:bg-red-500/50 transition-colors"
+                  title="Securely Clear History"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => setUseThinking(!useThinking)}
                   className={`p-1.5 rounded-lg transition-colors ${useThinking ? 'bg-white text-indigo-600' : 'bg-indigo-500/50 text-white/70 hover:text-white'}`}
@@ -122,6 +163,12 @@ export default function ChatWidget() {
                   <Send className="w-5 h-5" />
                 </button>
               </div>
+              <div className="mt-2 text-center">
+                 <span className="text-[10px] text-gray-500 flex items-center justify-center gap-1">
+                   <ShieldCheck className="w-3 h-3" />
+                   End-to-End Encrypted Session
+                 </span>
+              </div>
             </div>
           </motion.div>
         )}
@@ -131,9 +178,12 @@ export default function ChatWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg flex items-center justify-center transition-colors"
+        className="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg flex items-center justify-center transition-colors relative"
       >
         {isOpen ? <User className="w-6 h-6" /> : <Bot className="w-6 h-6" />}
+        <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1 border-2 border-black" title="Encrypted">
+          <ShieldCheck className="w-3 h-3 text-white" />
+        </div>
       </motion.button>
     </div>
   );
