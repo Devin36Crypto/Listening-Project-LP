@@ -1,4 +1,4 @@
-import { Github, Twitter, Linkedin, Mail, Headphones } from "lucide-react";
+import { Headphones } from "lucide-react";
 import Logo from "./Logo";
 
 interface FooterProps {
@@ -129,13 +129,6 @@ export default function Footer({
             <p>
               © {new Date().getFullYear()} Listening Project. All rights reserved.
             </p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors"><Twitter className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors"><Github className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors"><Linkedin className="w-5 h-5" /></a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors"><Mail className="w-5 h-5" /></a>
           </div>
         </div>
       </div>

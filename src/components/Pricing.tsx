@@ -8,7 +8,8 @@ const plans = [
     period: "/month",
     description: "Flexible billing. Cancel anytime.",
     features: [
-      "7-Day Free Trial",
+      "3-Day Free Trial",
+      "Web App Access",
       "Unlimited transcription",
       "Deep emotional analysis",
       "Real-time coaching",
@@ -16,7 +17,7 @@ const plans = [
       "High-fidelity audio"
     ],
     notIncluded: [],
-    cta: "Start 7-Day Free Trial",
+    cta: "Start 3-Day Free Trial",
     popular: false,
     variant: "mobile",
     planId: "mobile-monthly"
@@ -27,7 +28,8 @@ const plans = [
     period: "/month",
     description: "Optimized for larger screens. Connect multiple devices.",
     features: [
-      "7-Day Free Trial",
+      "3-Day Free Trial",
+      "Web App Access",
       "Sync across all tablets",
       "Add devices for $5/mo each",
       "Split-screen multitasking",
@@ -35,7 +37,7 @@ const plans = [
       "Everything in Monthly"
     ],
     notIncluded: [],
-    cta: "Start 7-Day Free Trial",
+    cta: "Start 3-Day Free Trial",
     popular: false,
     variant: "tablet",
     planId: "tablet-monthly"
@@ -46,7 +48,8 @@ const plans = [
     period: "/month",
     description: "Power user suite. Full desktop integration.",
     features: [
-      "7-Day Free Trial",
+      "3-Day Free Trial",
+      "Web App Access",
       "Sync across all computers",
       "Add devices for $6/mo each",
       "Advanced export tools",
@@ -54,7 +57,7 @@ const plans = [
       "Everything in Tablet"
     ],
     notIncluded: [],
-    cta: "Start 7-Day Free Trial",
+    cta: "Start 3-Day Free Trial",
     popular: false,
     variant: "desktop",
     planId: "desktop-monthly"
@@ -65,14 +68,15 @@ const plans = [
     period: "/year",
     description: "Mobile: $40/yr. Tablet: $60/yr. Desktop: $80/yr.",
     features: [
-      "7-Day Free Trial",
+      "3-Day Free Trial",
+      "Web App Access",
       "Save ~17% on any plan",
       "Priority support",
       "Early access to new features",
       "2 months free"
     ],
     notIncluded: [],
-    cta: "Start 7-Day Free Trial",
+    cta: "Start 3-Day Free Trial",
     popular: true,
     variant: "mobile",
     planId: "mobile-annual"
@@ -95,7 +99,7 @@ export default function Pricing({ onPlanSelect }: PricingProps) {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-4 font-display">Simple, Transparent Pricing</h2>
           <p className="text-gray-400 max-w-2xl mx-auto mb-8">
-            Download for free. Try everything for 7 days. Then choose the plan that works for you.
+            Download for free. Try everything for 3 days. Then choose the plan that works for you.
           </p>
           
           <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 text-indigo-300 text-sm">
@@ -139,7 +143,7 @@ export default function Pricing({ onPlanSelect }: PricingProps) {
                 <div className="bg-indigo-500/10 rounded-xl p-4 mb-6 border border-indigo-500/20">
                   <div className="flex items-center gap-3 text-indigo-300 font-medium">
                     <Calendar className="w-5 h-5" />
-                    <span>7-Day Free Trial Included</span>
+                    <span>3-Day Free Trial Included</span>
                   </div>
                   <p className="text-xs text-indigo-400/70 mt-1 ml-8">
                     You won't be charged until your trial ends.

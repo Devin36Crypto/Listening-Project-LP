@@ -119,8 +119,8 @@ export default function FeaturesModal({ isOpen, onClose }: FeaturesModalProps) {
         },
         {
           icon: Monitor,
-          title: "Cross-Platform PWA",
-          description: "Install directly from the browser on iOS, Android, Windows, and Mac without an app store."
+          title: "Web App Access",
+          description: "Launch directly from your browser on any device. No installation required for core features."
         }
       ]
     }

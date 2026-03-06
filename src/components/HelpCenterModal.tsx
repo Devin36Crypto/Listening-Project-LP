@@ -15,7 +15,7 @@ export default function HelpCenterModal({ isOpen, onClose, onContactSupport }: H
     {
       icon: Book,
       title: "Getting Started",
-      articles: ["How to install the app", "Creating your first recording", "Understanding the dashboard"]
+      articles: ["How to install the app", "Using the Web App", "Creating your first recording", "Understanding the dashboard"]
     },
     {
       icon: MessageCircle,

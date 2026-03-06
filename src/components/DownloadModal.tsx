@@ -38,33 +38,33 @@ export default function DownloadModal({
     switch (variant) {
       case "mobile":
         return [
-          { id: "mobile-monthly", name: "Mobile Monthly", price: "$4", period: "/month", features: ["7-Day Free Trial", "Unlimited transcription", "Cloud sync"] },
-          { id: "mobile-annual", name: "Mobile Annual", price: "$40", period: "/year", features: ["7-Day Free Trial", "Save 17%", "Priority support"] }
+          { id: "mobile-monthly", name: "Mobile Monthly", price: "$4", period: "/month", features: ["3-Day Free Trial", "Unlimited transcription", "Cloud sync"] },
+          { id: "mobile-annual", name: "Mobile Annual", price: "$40", period: "/year", features: ["3-Day Free Trial", "Save 17%", "Priority support"] }
         ];
       case "tablet":
         return [
-          { id: "tablet-monthly", name: "Tablet Monthly", price: "$6", period: "/month", features: ["7-Day Free Trial", "Split-screen", "Handwriting recognition"] },
-          { id: "tablet-annual", name: "Tablet Annual", price: "$60", period: "/year", features: ["7-Day Free Trial", "Save 17%", "Multi-device sync"] }
+          { id: "tablet-monthly", name: "Tablet Monthly", price: "$6", period: "/month", features: ["3-Day Free Trial", "Split-screen", "Handwriting recognition"] },
+          { id: "tablet-annual", name: "Tablet Annual", price: "$60", period: "/year", features: ["3-Day Free Trial", "Save 17%", "Multi-device sync"] }
         ];
       case "desktop":
         return [
-          { id: "desktop-monthly", name: "Desktop Monthly", price: "$8", period: "/month", features: ["7-Day Free Trial", "Advanced export", "Local storage"] },
-          { id: "desktop-annual", name: "Desktop Annual", price: "$80", period: "/year", features: ["7-Day Free Trial", "Save 17%", "Power user tools"] }
+          { id: "desktop-monthly", name: "Desktop Monthly", price: "$8", period: "/month", features: ["3-Day Free Trial", "Advanced export", "Local storage"] },
+          { id: "desktop-annual", name: "Desktop Annual", price: "$80", period: "/year", features: ["3-Day Free Trial", "Save 17%", "Power user tools"] }
         ];
       case "all":
         return [
-          { id: "mobile-monthly", name: "Mobile Monthly", price: "$4", period: "/month", features: ["7-Day Free Trial", "Unlimited transcription"] },
-          { id: "mobile-annual", name: "Mobile Annual", price: "$40", period: "/year", features: ["7-Day Free Trial", "Save 17%"] },
-          { id: "tablet-monthly", name: "Tablet Monthly", price: "$6", period: "/month", features: ["7-Day Free Trial", "Split-screen"] },
-          { id: "tablet-annual", name: "Tablet Annual", price: "$60", period: "/year", features: ["7-Day Free Trial", "Save 17%"] },
-          { id: "desktop-monthly", name: "Desktop Monthly", price: "$8", period: "/month", features: ["7-Day Free Trial", "Advanced export"] },
-          { id: "desktop-annual", name: "Desktop Annual", price: "$80", period: "/year", features: ["7-Day Free Trial", "Save 17%"] }
+          { id: "mobile-monthly", name: "Mobile Monthly", price: "$4", period: "/month", features: ["3-Day Free Trial", "Unlimited transcription"] },
+          { id: "mobile-annual", name: "Mobile Annual", price: "$40", period: "/year", features: ["3-Day Free Trial", "Save 17%"] },
+          { id: "tablet-monthly", name: "Tablet Monthly", price: "$6", period: "/month", features: ["3-Day Free Trial", "Split-screen"] },
+          { id: "tablet-annual", name: "Tablet Annual", price: "$60", period: "/year", features: ["3-Day Free Trial", "Save 17%"] },
+          { id: "desktop-monthly", name: "Desktop Monthly", price: "$8", period: "/month", features: ["3-Day Free Trial", "Advanced export"] },
+          { id: "desktop-annual", name: "Desktop Annual", price: "$80", period: "/year", features: ["3-Day Free Trial", "Save 17%"] }
         ];
       default:
         // Auto/Generic fallback - assume Desktop for now or generic
         return [
-          { id: "desktop-monthly", name: "Pro Monthly", price: "$8", period: "/month", features: ["7-Day Free Trial", "All features"] },
-          { id: "desktop-annual", name: "Pro Annual", price: "$80", period: "/year", features: ["7-Day Free Trial", "Save 17%"] }
+          { id: "desktop-monthly", name: "Pro Monthly", price: "$8", period: "/month", features: ["3-Day Free Trial", "All features"] },
+          { id: "desktop-annual", name: "Pro Annual", price: "$80", period: "/year", features: ["3-Day Free Trial", "Save 17%"] }
         ];
     }
   };
@@ -273,12 +273,12 @@ export default function DownloadModal({
                   ) : (
                     <>
                       <Download className="w-5 h-5" />
-                      Start 7-Day Free Trial & Download
+                      Start 3-Day Free Trial & Download
                     </>
                   )}
                 </button>
                 <p className="text-center text-xs text-gray-500">
-                  Your payment is secured with 256-bit SSL encryption. We do not store your credit card details. Billing starts after your 7-day free trial ends. Cancel anytime.
+                  Your payment is secured with 256-bit SSL encryption. We do not store your credit card details. Billing starts after your 3-day free trial ends. Cancel anytime.
                 </p>
               </div>
             )}

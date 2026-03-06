@@ -11,6 +11,16 @@ export default function ChangelogModal({ isOpen, onClose }: ChangelogModalProps)
 
   const releases = [
     {
+      version: "v1.3.0",
+      date: "March 6, 2026",
+      type: "major",
+      changes: [
+        { type: "feature", text: "Web App Launch: Access Listening Project directly from your browser." },
+        { type: "feature", text: "Gemini Live Integration: Real-time, low-latency voice translation." },
+        { type: "improvement", text: "Visualizer: New real-time audio waveform visualization." }
+      ]
+    },
+    {
       version: "v1.2.0",
       date: "March 1, 2026",
       type: "major",

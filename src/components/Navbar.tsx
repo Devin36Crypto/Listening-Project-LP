@@ -1,4 +1,3 @@
-import { motion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import Logo from "./Logo";
@@ -10,7 +9,7 @@ export default function Navbar({ onOpenDownload }: { onOpenDownload?: () => void
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.location.reload()}>
             <Logo className="w-10 h-10" />
             <span className="text-xl font-bold tracking-tight font-display">Listening Project</span>
           </div>
@@ -19,7 +18,6 @@ export default function Navbar({ onOpenDownload }: { onOpenDownload?: () => void
             <div className="ml-10 flex items-baseline space-x-8">
               <a href="#features" className="hover:text-indigo-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Features</a>
               <a href="#testimonials" className="hover:text-indigo-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Stories</a>
-              <a href="#demo" className="hover:text-indigo-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">AI Demo</a>
               <a href="#pricing" className="hover:text-indigo-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Pricing</a>
               <a 
                 href="https://play.google.com/store/apps" 
@@ -47,9 +45,7 @@ export default function Navbar({ onOpenDownload }: { onOpenDownload?: () => void
       </div>
 
       {isOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div 
           className="md:hidden bg-black/95 border-b border-white/10"
         >
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -69,7 +65,7 @@ export default function Navbar({ onOpenDownload }: { onOpenDownload?: () => void
               Get on Google Play
             </a>
           </div>
-        </motion.div>
+        </div>
       )}
     </nav>
   );

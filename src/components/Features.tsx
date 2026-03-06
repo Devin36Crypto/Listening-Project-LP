@@ -29,8 +29,8 @@ const features = [
   },
   {
     icon: Globe,
-    title: "Multi-language Support",
-    description: "Seamlessly translate and understand conversations in over 30 languages."
+    title: "Live Voice Translation",
+    description: "Seamlessly translate and understand conversations in real-time across over 30 languages."
   }
 ];
 

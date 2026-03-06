@@ -1,16 +1,8 @@
-import { motion, useSpring, useTransform } from "motion/react";
 import { Smartphone, Monitor, Download, Headphones, Tablet } from "lucide-react";
 import { useEffect, useState } from "react";
 
 function AnimatedCounter({ value }: { value: number }) {
-  const spring = useSpring(0, { mass: 0.8, stiffness: 75, damping: 15 });
-  const display = useTransform(spring, (current) => Math.round(current).toLocaleString());
-
-  useEffect(() => {
-    spring.set(value);
-  }, [spring, value]);
-
-  return <motion.span>{display}</motion.span>;
+  return <span>{value.toLocaleString()}</span>;
 }
 
 export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "auto" | "mobile" | "desktop" | "tablet") => void }) {
@@ -30,11 +22,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+        <div>
           <span className="inline-block py-1 px-3 rounded-full bg-white/5 border border-white/10 text-sm text-indigo-300 mb-6 backdrop-blur-sm">
             The Future of Active Listening
           </span>
@@ -82,7 +70,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
           </div>
           
           <div className="flex flex-col items-center gap-6">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+            <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-4 w-full">
               <button 
                 onClick={() => onOpenDownload("mobile")}
                 className="flex items-center gap-2 bg-white/10 text-white border border-white/10 px-8 py-4 rounded-full font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm w-full sm:w-auto justify-center"
@@ -90,6 +78,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
                 <Smartphone className="w-5 h-5" />
                 Download for Mobile
               </button>
+
               <button 
                 onClick={() => onOpenDownload("desktop")}
                 className="flex items-center gap-2 bg-white/10 text-white border border-white/10 px-8 py-4 rounded-full font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm w-full sm:w-auto justify-center"
@@ -98,7 +87,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
                 Download for Desktop
               </button>
             </div>
-            
+
             <button 
               onClick={() => onOpenDownload("tablet")}
               className="flex items-center gap-2 bg-white/10 text-white border border-white/10 px-8 py-4 rounded-full font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm w-full sm:w-auto justify-center"
@@ -111,7 +100,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
           <p className="mt-6 text-sm text-gray-500">
             iOS version coming soon.
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

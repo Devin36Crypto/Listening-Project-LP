@@ -5,6 +5,12 @@ import ReviewModal from "./ReviewModal";
 
 const initialTestimonials = [
   {
+    quote: "The new Web App is incredible. I use the Live Translation feature during my international calls, and it's like having a personal interpreter right in my browser.",
+    author: "David Chen",
+    role: "Global Operations Director",
+    image: "https://picsum.photos/seed/david/100/100"
+  },
+  {
     quote: "This app completely changed how I handle client meetings. I catch details I used to miss, and the emotional analysis helps me understand what they aren't saying.",
     author: "Sarah Jenkins",
     role: "Product Manager",
