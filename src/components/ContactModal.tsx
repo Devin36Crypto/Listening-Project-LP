@@ -21,18 +21,43 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    
-    // Reset after showing success
-    setTimeout(() => {
-      setIsSuccess(false);
-      setFormState({ name: "", email: "", subject: "", message: "" });
-      onClose();
-    }, 2000);
+    try {
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: 'menard.devin.DM@gmail.com', // Send to the owner
+          subject: `New Contact Form Submission: ${formState.subject}`,
+          html: `
+            <p><strong>Name:</strong> ${formState.name}</p>
+            <p><strong>Email:</strong> ${formState.email}</p>
+            <p><strong>Subject:</strong> ${formState.subject}</p>
+            <p><strong>Message:</strong></p>
+            <p>${formState.message}</p>
+          `,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
+
+      setIsSuccess(true);
+      
+      // Reset after showing success
+      setTimeout(() => {
+        setIsSuccess(false);
+        setFormState({ name: "", email: "", subject: "", message: "" });
+        onClose();
+      }, 2000);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;

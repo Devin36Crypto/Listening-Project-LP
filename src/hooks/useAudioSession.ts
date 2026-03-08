@@ -13,12 +13,31 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
   const [logs, setLogs] = useState<Log[]>([]);
   const [volume, setVolume] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
+  const logsRef = useRef<Log[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const playbackContextRef = useRef<AudioContext | null>(null);
+  const nextStartTimeRef = useRef<number>(0);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
   const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const sessionRef = useRef<any>(null); // GoogleGenAI Session
   const currentSessionIdRef = useRef<string | null>(null);
+  const lastVolumeUpdateRef = useRef<number>(0);
+
+  // Helper to update logs state and ref
+  const addLog = useCallback((log: Log) => {
+    setLogs(prev => {
+      const newLogs = [...prev, log];
+      logsRef.current = newLogs;
+      return newLogs;
+    });
+  }, []);
+
+  const clearLogs = useCallback(() => {
+    setLogs([]);
+    logsRef.current = [];
+  }, []);
 
   // Initialize Audio Context
   const initAudio = async () => {
@@ -49,12 +68,17 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
         }
         
         // Calculate volume for visualizer
-        let sum = 0;
-        for (let i = 0; i < float32Data.length; i++) {
-            sum += float32Data[i] * float32Data[i];
+        // Throttle updates to ~60fps (16ms)
+        const now = Date.now();
+        if (now - lastVolumeUpdateRef.current > 30) {
+            let sum = 0;
+            for (let i = 0; i < float32Data.length; i++) {
+                sum += float32Data[i] * float32Data[i];
+            }
+            const rms = Math.sqrt(sum / float32Data.length);
+            setVolume(Math.min(1, rms * 5)); // Boost a bit for visualizer
+            lastVolumeUpdateRef.current = now;
         }
-        const rms = Math.sqrt(sum / float32Data.length);
-        setVolume(Math.min(1, rms * 5)); // Boost a bit for visualizer
 
         // Send to Gemini if connected
         if (sessionRef.current && isRecording) {
@@ -74,6 +98,11 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
       workletNodeRef.current = worklet;
       sourceNodeRef.current = source;
       
+      // Initialize Playback Context
+      if (!playbackContextRef.current) {
+        playbackContextRef.current = new AudioContext({ sampleRate: 24000 });
+      }
+
       return true;
     } catch (err) {
       console.error("Audio init error:", err);
@@ -82,7 +111,58 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
     }
   };
 
+  const disconnect = useCallback(async () => {
+    // Close session
+    sessionRef.current = null;
+    
+    if (audioContextRef.current) {
+        audioContextRef.current.suspend();
+    }
+
+    setIsConnected(false);
+    setIsRecording(false);
+
+    // Save session to DB using ref to avoid stale closure
+    if (currentSessionIdRef.current && logsRef.current.length > 0) {
+        const sessionToSave: Session = {
+            id: currentSessionIdRef.current,
+            startTime: logsRef.current[0].timestamp,
+            endTime: new Date(),
+            logs: logsRef.current,
+            mode: AppMode.VOICE_CONVERSATION,
+            targetLanguage: settings.targetLanguage,
+            speakerRegistry: {}
+        };
+        await saveSession(sessionToSave, null);
+    }
+  }, [settings.targetLanguage]);
+
+  // Monitor online status
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => {
+        setIsOffline(true);
+        if (isConnected) {
+            disconnect();
+            setError("Internet connection lost. Session paused.");
+        }
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+    };
+  }, [isConnected, disconnect]);
+
   const connect = useCallback(async () => {
+    if (!navigator.onLine) {
+        setError("No internet connection. Please check your network.");
+        return;
+    }
+
     try {
       setError(null);
       const apiKey = process.env.GEMINI_API_KEY; // This should be available in the env
@@ -95,13 +175,12 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
       // Start a new session log
       const newSessionId = crypto.randomUUID();
       currentSessionIdRef.current = newSessionId;
-      setLogs([]);
+      clearLogs();
 
       const session = await client.live.connect({
         model: "gemini-2.5-flash-native-audio-preview-09-2025",
         callbacks: {
             onopen: () => {
-                console.log("Connected to Gemini Live");
                 setIsConnected(true);
                 setIsRecording(true);
             },
@@ -112,8 +191,7 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
                     playAudio(audioData);
                 }
 
-                // Handle text transcription (if available in future or via tool)
-                // For now, we simulate logs or if the model sends text parts
+                // Handle text transcription
                 const textPart = message.serverContent?.modelTurn?.parts?.find(p => p.text);
                 if (textPart && textPart.text) {
                      const newLog: Log = {
@@ -122,11 +200,10 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
                         text: textPart.text,
                         timestamp: new Date()
                     };
-                    setLogs(prev => [...prev, newLog]);
+                    addLog(newLog);
                 }
             },
             onclose: () => {
-                console.log("Disconnected from Gemini Live");
                 setIsConnected(false);
                 setIsRecording(false);
             },
@@ -155,41 +232,17 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
       } else {
         audioContextRef.current.resume();
       }
+      
+      if (playbackContextRef.current?.state === 'suspended') {
+        playbackContextRef.current.resume();
+      }
 
     } catch (err: any) {
       console.error("Connection failed:", err);
       setError(err.message || "Failed to connect");
       setIsConnected(false);
     }
-  }, [settings]);
-
-  const disconnect = useCallback(async () => {
-    // Close session (no close method on the session object directly in some versions, but let's try)
-    // Actually the SDK might manage it.
-    // We can just stop sending data.
-    sessionRef.current = null;
-    
-    if (audioContextRef.current) {
-        audioContextRef.current.suspend();
-    }
-
-    setIsConnected(false);
-    setIsRecording(false);
-
-    // Save session to DB
-    if (currentSessionIdRef.current && logs.length > 0) {
-        const sessionToSave: Session = {
-            id: currentSessionIdRef.current,
-            startTime: logs[0].timestamp,
-            endTime: new Date(),
-            logs: logs,
-            mode: AppMode.VOICE_CONVERSATION,
-            targetLanguage: settings.targetLanguage,
-            speakerRegistry: {}
-        };
-        await saveSession(sessionToSave, null);
-    }
-  }, [logs, settings.targetLanguage]);
+  }, [settings, addLog, clearLogs, disconnect]);
 
   const playAudio = async (base64Data: string) => {
     if (!settings.autoSpeak) return;
@@ -202,12 +255,11 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
             bytes[i] = binaryString.charCodeAt(i);
         }
         
-        // PCM data from Gemini is usually 24kHz.
-        // We need to decode or play raw PCM.
-        // The SDK might return PCM. Let's assume PCM 24kHz 1 channel.
+        if (!playbackContextRef.current) {
+            playbackContextRef.current = new AudioContext({ sampleRate: 24000 });
+        }
+        const audioCtx = playbackContextRef.current;
         
-        // Simple PCM player
-        const audioCtx = new AudioContext({ sampleRate: 24000 });
         const buffer = audioCtx.createBuffer(1, bytes.length / 2, 24000);
         const channelData = buffer.getChannelData(0);
         const int16 = new Int16Array(bytes.buffer);
@@ -219,7 +271,14 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
         const source = audioCtx.createBufferSource();
         source.buffer = buffer;
         source.connect(audioCtx.destination);
-        source.start();
+        
+        // Schedule playback
+        const currentTime = audioCtx.currentTime;
+        if (nextStartTimeRef.current < currentTime) {
+            nextStartTimeRef.current = currentTime;
+        }
+        source.start(nextStartTimeRef.current);
+        nextStartTimeRef.current += buffer.duration;
         
     } catch (e) {
         console.error("Audio playback error", e);
@@ -234,12 +293,26 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
     }
   }, [isConnected, connect, disconnect]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+      if (playbackContextRef.current) {
+        playbackContextRef.current.close();
+      }
+      sessionRef.current = null;
+    };
+  }, []);
+
   return {
     isConnected,
     isRecording,
     logs,
     volume,
     error,
+    isOffline,
     toggleRecording
   };
 }

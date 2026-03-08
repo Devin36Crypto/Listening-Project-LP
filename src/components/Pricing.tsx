@@ -13,7 +13,7 @@ const plans = [
       "Unlimited transcription",
       "Deep emotional analysis",
       "Real-time coaching",
-      "Cloud sync & backup",
+      "Secure local storage",
       "High-fidelity audio"
     ],
     notIncluded: [],
@@ -30,7 +30,7 @@ const plans = [
     features: [
       "3-Day Free Trial",
       "Web App Access",
-      "Sync across all tablets",
+      "Optimized for tablets",
       "Add devices for $5/mo each",
       "Split-screen multitasking",
       "Handwriting recognition",
@@ -50,7 +50,7 @@ const plans = [
     features: [
       "3-Day Free Trial",
       "Web App Access",
-      "Sync across all computers",
+      "Optimized for desktop",
       "Add devices for $6/mo each",
       "Advanced export tools",
       "Unlimited local storage",

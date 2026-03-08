@@ -4,6 +4,7 @@ import { Mic, MicOff, Settings, History, X } from 'lucide-react';
 interface ControlPanelProps {
   isConnected: boolean;
   isRecording: boolean;
+  isOffline?: boolean;
   onToggleRecording: () => void;
   onOpenSettings: () => void;
   onOpenHistory: () => void;
@@ -13,6 +14,7 @@ interface ControlPanelProps {
 const ControlPanel: React.FC<ControlPanelProps> = ({
   isConnected,
   isRecording,
+  isOffline = false,
   onToggleRecording,
   onOpenSettings,
   onOpenHistory,
@@ -43,11 +45,15 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         {/* Main Action */}
         <button
             onClick={onToggleRecording}
+            disabled={isOffline}
+            title={isOffline ? "Offline Mode - Recording Unavailable" : isRecording ? "Stop Recording" : "Start Recording"}
             className={`
                 relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg
-                ${isRecording 
-                    ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30 scale-110' 
-                    : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/30'
+                ${isOffline
+                    ? 'bg-slate-700 cursor-not-allowed opacity-50'
+                    : isRecording 
+                        ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30 scale-110' 
+                        : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/30'
                 }
             `}
         >

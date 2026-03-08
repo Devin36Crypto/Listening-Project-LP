@@ -1,6 +1,6 @@
 import { openDB, IDBPDatabase } from 'idb';
 import { Session } from '../types';
-import { encryptData, decryptData } from './encryption';
+import { encryptData, decryptData, deriveKeyFromPassword, encryptWithKey, decryptWithKey } from './encryption';
 
 const DB_NAME = 'ListeningProjectDB';
 const STORE_NAME = 'sessions';
@@ -17,7 +17,10 @@ async function getDB(): Promise<IDBPDatabase> {
 
 export async function saveSession(session: Session, key: string | null): Promise<void> {
     const db = await getDB();
-    const dataToSave = key ? await encryptData(session, key) : session;
+    let dataToSave: any = session;
+    if (key) {
+        dataToSave = await encryptData(session, key);
+    }
     await db.put(STORE_NAME, dataToSave);
 }
 
@@ -27,16 +30,25 @@ export async function getSessions(key: string | null): Promise<Session[]> {
     
     if (!key) return allData as Session[];
 
-    const decryptedSessions: Session[] = [];
-    for (const item of allData) {
-        try {
-            const decrypted = await decryptData(item, key);
-            decryptedSessions.push(decrypted);
-        } catch (e) {
-            console.warn('Failed to decrypt session', item.id);
-        }
+    try {
+        const cryptoKey = await deriveKeyFromPassword(key);
+        
+        const decryptedSessions = await Promise.all(
+            allData.map(async (item) => {
+                try {
+                    return await decryptWithKey(item, cryptoKey);
+                } catch (e) {
+                    console.warn('Failed to decrypt session', item.id);
+                    return null;
+                }
+            })
+        );
+
+        return decryptedSessions.filter((s): s is Session => s !== null);
+    } catch (e) {
+        console.error("Error deriving key or decrypting sessions", e);
+        return [];
     }
-    return decryptedSessions;
 }
 
 export async function deleteSession(id: string): Promise<void> {
@@ -54,8 +66,16 @@ export async function importSessions(sessions: Session[], key: string | null): P
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
     
+    let cryptoKey: CryptoKey | null = null;
+    if (key) {
+        cryptoKey = await deriveKeyFromPassword(key);
+    }
+    
     for (const session of sessions) {
-        const dataToSave = key ? await encryptData(session, key) : session;
+        let dataToSave: any = session;
+        if (cryptoKey) {
+            dataToSave = await encryptWithKey(session, cryptoKey);
+        }
         await store.put(dataToSave);
     }
     await tx.done;

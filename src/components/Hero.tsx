@@ -1,16 +1,72 @@
-import { Smartphone, Monitor, Download, Headphones, Tablet } from "lucide-react";
+import { Smartphone, Monitor, Download, Headphones, Tablet, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getDownloadStats } from "../services/supabase";
 
 function AnimatedCounter({ value }: { value: number }) {
-  return <span>{value.toLocaleString()}</span>;
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = value;
+    if (start === end) return;
+
+    const duration = 2000;
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Ease out quart
+      const ease = 1 - Math.pow(1 - progress, 4);
+      
+      const current = Math.floor(start + (end - start) * ease);
+      setDisplayValue(current);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [value]);
+
+  return <span>{displayValue.toLocaleString()}</span>;
 }
+
+// Set launch date to today for now, or a specific date.
+// User request: "after a year I want it to change to 'Total downloads'"
+const LAUNCH_DATE = new Date('2026-01-01'); // Example launch date
 
 export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "auto" | "mobile" | "desktop" | "tablet") => void }) {
   const [downloadCount, setDownloadCount] = useState(0);
+  const [isTotalMode, setIsTotalMode] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching live data
-    setDownloadCount(12450);
+    async function fetchStats() {
+      try {
+        const { weekly, total } = await getDownloadStats();
+        
+        const now = new Date();
+        const oneYearAfterLaunch = new Date(LAUNCH_DATE);
+        oneYearAfterLaunch.setFullYear(oneYearAfterLaunch.getFullYear() + 1);
+
+        if (now > oneYearAfterLaunch) {
+          setIsTotalMode(true);
+          setDownloadCount(total);
+        } else {
+          setIsTotalMode(false);
+          setDownloadCount(weekly);
+        }
+      } catch (e) {
+        console.error("Failed to fetch download stats", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchStats();
   }, []);
 
   return (
@@ -42,14 +98,18 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
           
           {/* Animated Stat */}
           <div className="flex justify-center mb-10">
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md min-h-[40px]">
+              <div className={`w-2 h-2 ${downloadCount > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-500'} rounded-full`} />
               <span className="text-sm font-medium text-gray-300 flex items-center gap-1">
                 <Download className="w-3 h-3 text-gray-400" />
-                <span className="text-white font-bold tabular-nums">
-                  <AnimatedCounter value={downloadCount} />+
-                </span>
-                downloads this week
+                {loading ? (
+                  <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
+                ) : (
+                  <span className="text-white font-bold tabular-nums">
+                    <AnimatedCounter value={downloadCount} />
+                  </span>
+                )}
+                {isTotalMode ? " total downloads" : " downloads this week"}
               </span>
             </div>
           </div>

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Analytics } from "@vercel/analytics/react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Features from "./components/Features";
@@ -16,8 +15,12 @@ import ChangelogModal from "./components/ChangelogModal";
 import HelpCenterModal from "./components/HelpCenterModal";
 import ContactModal from "./components/ContactModal";
 import LegalDisclaimerModal from "./components/LegalDisclaimerModal";
+import SystemStatusModal from "./components/SystemStatusModal";
+import ListeningApp from "./components/ListeningApp";
+import { supabase } from "./services/supabase";
 
 export default function App() {
+  const [session, setSession] = useState<any>(null);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [downloadVariant, setDownloadVariant] = useState<"auto" | "mobile" | "desktop" | "tablet">("auto");
   const [initialPlanId, setInitialPlanId] = useState<string | undefined>(undefined);
@@ -30,8 +33,24 @@ export default function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isLegalOpen, setIsLegalOpen] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -61,6 +80,16 @@ export default function App() {
     setIsDownloadOpen(true);
   };
 
+  if (session) {
+    return (
+      <ListeningApp 
+        onClose={() => supabase.auth.signOut()} 
+        deferredPrompt={deferredPrompt}
+        onInstall={handleInstallApp}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-indigo-500/30">
       <Navbar onOpenDownload={() => handleOpenDownload("auto")} />
@@ -82,6 +111,7 @@ export default function App() {
         onOpenHelp={() => setIsHelpOpen(true)}
         onOpenContact={() => setIsContactOpen(true)}
         onOpenLegal={() => setIsLegalOpen(true)}
+        onOpenStatus={() => setIsStatusOpen(true)}
       />
 
       <LegalBanner />
@@ -111,8 +141,7 @@ export default function App() {
       />
       <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
       <LegalDisclaimerModal isOpen={isLegalOpen} onClose={() => setIsLegalOpen(false)} />
-      
-      <Analytics />
+      <SystemStatusModal isOpen={isStatusOpen} onClose={() => setIsStatusOpen(false)} />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from "motion/react";
-import { X, Smartphone, Monitor, Download, MoreVertical, Tablet, CreditCard, Check, ChevronDown } from "lucide-react";
+import { X, Smartphone, Monitor, Download, MoreVertical, Tablet, CreditCard, Check, ChevronDown, Lock, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase, recordDownload } from "../services/supabase";
+import { Purchases } from "@revenuecat/purchases-js";
 
 interface DownloadModalProps {
   isOpen: boolean;
@@ -32,19 +34,25 @@ export default function DownloadModal({
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDisclaimerAccepted, setIsDisclaimerAccepted] = useState(false);
+  
+  // Form State
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoginMode, setIsLoginMode] = useState(false);
 
   // Define plans based on variant
   const getPlans = (): Plan[] => {
     switch (variant) {
       case "mobile":
         return [
-          { id: "mobile-monthly", name: "Mobile Monthly", price: "$4", period: "/month", features: ["3-Day Free Trial", "Unlimited transcription", "Cloud sync"] },
+          { id: "mobile-monthly", name: "Mobile Monthly", price: "$4", period: "/month", features: ["3-Day Free Trial", "Unlimited transcription", "Local storage"] },
           { id: "mobile-annual", name: "Mobile Annual", price: "$40", period: "/year", features: ["3-Day Free Trial", "Save 17%", "Priority support"] }
         ];
       case "tablet":
         return [
           { id: "tablet-monthly", name: "Tablet Monthly", price: "$6", period: "/month", features: ["3-Day Free Trial", "Split-screen", "Handwriting recognition"] },
-          { id: "tablet-annual", name: "Tablet Annual", price: "$60", period: "/year", features: ["3-Day Free Trial", "Save 17%", "Multi-device sync"] }
+          { id: "tablet-annual", name: "Tablet Annual", price: "$60", period: "/year", features: ["3-Day Free Trial", "Save 17%", "Encrypted backup"] }
         ];
       case "desktop":
         return [
@@ -81,6 +89,11 @@ export default function DownloadModal({
         setStep("selection");
         setSelectedPlanId(plans[0].id);
       }
+      // Reset form
+      setEmail("");
+      setPassword("");
+      setError(null);
+      setIsDisclaimerAccepted(false);
     }
   }, [isOpen, variant, initialPlanId]);
 
@@ -108,10 +121,58 @@ export default function DownloadModal({
 
   const handlePayment = async () => {
     setIsProcessing(true);
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsProcessing(false);
-    setStep("install");
+    setError(null);
+
+    try {
+      if (isLoginMode) {
+        // Login Logic
+        const { error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (authError) throw authError;
+        
+        // On success, just close (App.tsx handles session state)
+        onClose();
+      } else {
+        // Signup & Payment Logic
+        // 1. Create Supabase User
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+        if (authError) throw authError;
+
+        // 2. Identify in RevenueCat (if we had a user ID)
+        if (authData.user) {
+           try {
+             const apiKey = import.meta.env.VITE_REVENUECAT_PUBLIC_API_KEY;
+             if (apiKey) {
+               Purchases.configure(apiKey, authData.user.id);
+               // In a real scenario, we would trigger the purchase flow here.
+               // For now, we simulate success as it's a "Free Trial" or demo.
+             }
+           } catch (rcError) {
+             console.warn("RevenueCat config error", rcError);
+           }
+        }
+
+        // Simulate payment processing delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Record download with detected platform
+        const platform = activeTab === 'ios' ? 'ios' : activeTab === 'android' ? 'android' : 'desktop';
+        recordDownload(platform);
+
+        setStep("install");
+      }
+    } catch (err: any) {
+      console.error("Auth/Payment error:", err);
+      setError(err.message || "An error occurred.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -142,7 +203,7 @@ export default function DownloadModal({
             <div className="flex items-center gap-3">
               <Download className="w-6 h-6 text-indigo-500" />
               <h2 className="text-xl font-bold font-display">
-                {step === "install" ? "Install Listening Project" : "Select Plan & Download"}
+                {step === "install" ? "Install Listening Project" : (isLoginMode ? "Log In" : "Select Plan & Download")}
               </h2>
             </div>
             <button 
@@ -156,7 +217,7 @@ export default function DownloadModal({
           {/* Content */}
           <div className="p-6 md:p-8">
             
-            {step === "selection" && (
+            {step === "selection" && !isLoginMode && (
               <div className="space-y-6">
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold mb-2">Choose your plan</h3>
@@ -197,89 +258,163 @@ export default function DownloadModal({
                   ))}
                 </div>
 
-                <button
-                  onClick={() => setStep("payment")}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold text-lg transition-colors mt-6 flex items-center justify-center gap-2"
-                >
-                  Continue to Payment <ChevronDown className="w-5 h-5 rotate-[-90deg]" />
-                </button>
+                <div className="flex flex-col gap-3 mt-6">
+                    <button
+                    onClick={() => setStep("payment")}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+                    >
+                    Continue to Payment <ChevronDown className="w-5 h-5 rotate-[-90deg]" />
+                    </button>
+                    
+                    <button
+                        onClick={() => { setIsLoginMode(true); setStep("payment"); }}
+                        className="text-sm text-gray-400 hover:text-white transition-colors"
+                    >
+                        Already have an account? Log in
+                    </button>
+                </div>
               </div>
             )}
 
             {step === "payment" && (
               <div className="space-y-6">
-                <div className="flex items-center gap-2 text-sm text-gray-400 mb-4 cursor-pointer hover:text-white" onClick={() => setStep("selection")}>
-                  <ChevronDown className="w-4 h-4 rotate-90" /> Back to plans
-                </div>
+                {!isLoginMode && (
+                    <div className="flex items-center gap-2 text-sm text-gray-400 mb-4 cursor-pointer hover:text-white" onClick={() => setStep("selection")}>
+                    <ChevronDown className="w-4 h-4 rotate-90" /> Back to plans
+                    </div>
+                )}
 
                 <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-indigo-400" />
-                    Secure Payment
+                    {isLoginMode ? "Log In" : "Create Account & Secure Payment"}
                   </h3>
                   
+                  {error && (
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm mb-4">
+                      {error}
+                    </div>
+                  )}
+
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-1">Card Number</label>
+                      <label className="block text-sm font-medium text-gray-400 mb-1">Email Address</label>
                       <input 
-                        type="text" 
-                        placeholder="0000 0000 0000 0000" 
+                        type="email" 
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                        placeholder="you@example.com"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Expiry</label>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-1">Password</label>
+                      <div className="relative">
                         <input 
-                          type="text" 
-                          placeholder="MM/YY" 
+                          type="password" 
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                           className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                          placeholder={isLoginMode ? "Enter your password" : "Create a password"}
                         />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">CVC</label>
-                        <input 
-                          type="text" 
-                          placeholder="123" 
-                          className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
-                        />
+                        <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                       </div>
                     </div>
+
+                    {!isLoginMode && (
+                        <div className="border-t border-white/10 my-4 pt-4">
+                            <p className="text-xs text-gray-500 mb-3 uppercase tracking-wider">Payment Details</p>
+                            <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-1">Card Number</label>
+                            <input 
+                                type="text" 
+                                placeholder="0000 0000 0000 0000" 
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                            />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Expiry</label>
+                                <input 
+                                type="text" 
+                                placeholder="MM/YY" 
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">CVC</label>
+                                <input 
+                                type="text" 
+                                placeholder="123" 
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                                />
+                            </div>
+                            </div>
+                        </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-xl p-4 flex items-start gap-3">
-                  <div className="flex items-center h-5 mt-0.5">
-                    <input
-                      id="legal-agreement"
-                      type="checkbox"
-                      checked={isDisclaimerAccepted}
-                      onChange={(e) => setIsDisclaimerAccepted(e.target.checked)}
-                      className="w-4 h-4 text-indigo-600 bg-black/50 border-gray-500 rounded focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer"
-                    />
-                  </div>
-                  <label htmlFor="legal-agreement" className="text-sm text-gray-300 cursor-pointer select-none">
-                    I acknowledge that I am solely responsible for complying with all applicable laws regarding the recording of conversations in my jurisdiction. I agree to the Terms of Service and Privacy Policy.
-                  </label>
-                </div>
+                {!isLoginMode && (
+                    <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-xl p-4 flex items-start gap-3">
+                    <div className="flex items-center h-5 mt-0.5">
+                        <input
+                        id="legal-agreement"
+                        type="checkbox"
+                        checked={isDisclaimerAccepted}
+                        onChange={(e) => setIsDisclaimerAccepted(e.target.checked)}
+                        className="w-4 h-4 text-indigo-600 bg-black/50 border-gray-500 rounded focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer"
+                        />
+                    </div>
+                    <label htmlFor="legal-agreement" className="text-sm text-gray-300 cursor-pointer select-none">
+                        I acknowledge that I am solely responsible for complying with all applicable laws regarding the recording of conversations in my jurisdiction. I agree to the Terms of Service and Privacy Policy.
+                    </label>
+                    </div>
+                )}
 
                 <button
                   onClick={handlePayment}
-                  disabled={isProcessing || !isDisclaimerAccepted}
+                  disabled={isProcessing || (!isLoginMode && !isDisclaimerAccepted) || !email || !password}
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600"
                 >
                   {isProcessing ? (
-                    <>Processing...</>
+                    <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Processing...
+                    </>
                   ) : (
                     <>
-                      <Download className="w-5 h-5" />
-                      Start 3-Day Free Trial & Download
+                      {isLoginMode ? (
+                          "Log In"
+                      ) : (
+                          <>
+                            <Download className="w-5 h-5" />
+                            Start 3-Day Free Trial & Download
+                          </>
+                      )}
                     </>
                   )}
                 </button>
-                <p className="text-center text-xs text-gray-500">
-                  Your payment is secured with 256-bit SSL encryption. We do not store your credit card details. Billing starts after your 3-day free trial ends. Cancel anytime.
-                </p>
+                
+                {!isLoginMode && (
+                    <p className="text-center text-xs text-gray-500">
+                    Your payment is secured with 256-bit SSL encryption. We do not store your credit card details. Billing starts after your 3-day free trial ends. Cancel anytime.
+                    </p>
+                )}
+
+                <div className="text-center mt-4">
+                    <button
+                        onClick={() => {
+                            setIsLoginMode(!isLoginMode);
+                            setError(null);
+                        }}
+                        className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                    >
+                        {isLoginMode ? "Need an account? Sign up" : "Already have an account? Log in"}
+                    </button>
+                </div>
               </div>
             )}
 
@@ -293,8 +428,8 @@ export default function DownloadModal({
                   <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Check className="w-8 h-8" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Payment Successful!</h3>
-                  <p className="text-gray-400">You can now install the application.</p>
+                  <h3 className="text-2xl font-bold text-white">Success!</h3>
+                  <p className="text-gray-400">Your account has been created and subscription started.</p>
                 </div>
 
                 {/* Install Button (if supported) */}

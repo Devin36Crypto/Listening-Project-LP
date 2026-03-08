@@ -70,7 +70,7 @@ export default function PrivacyPolicy({ isOpen, onClose }: PrivacyPolicyProps) {
               </h3>
               <ul className="list-disc pl-5 space-y-2">
                 <li>
-                  <strong>Local-First Audio Data:</strong> Audio recordings and transcripts are stored locally on your device using IndexedDB. We do not store your session history on our servers.
+                  <strong>Strict Local-First Audio Data:</strong> Audio recordings and transcripts are stored EXCLUSIVELY on your device using IndexedDB. We do not store, access, or sync your session history to our servers. You own your data.
                 </li>
                 <li>
                   <strong>Ephemeral Processing:</strong> Audio sent to our AI partners for transcription is processed in memory and discarded immediately after processing. It is not retained for training purposes.

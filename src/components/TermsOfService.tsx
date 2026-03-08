@@ -63,10 +63,13 @@ export default function TermsOfService({ isOpen, onClose }: TermsOfServiceProps)
             <section>
               <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-indigo-400" />
-                2. Description of Service
+                2. Description of Service & Privacy
               </h3>
               <p>
                 The Listening Project provides AI-powered audio transcription, emotional analysis, and communication coaching tools. We use advanced artificial intelligence to process your audio inputs and provide text-based outputs and insights.
+              </p>
+              <p className="mt-2">
+                <strong>Privacy Commitment:</strong> We are committed to a "Local-First" architecture. Your audio recordings and session transcripts are stored locally on your device. We do not have access to your private conversations. AI processing is ephemeral and data is not retained by our servers.
               </p>
               <p className="mt-2">
                 You acknowledge that AI-generated content may not always be 100% accurate and should be verified for critical use cases.

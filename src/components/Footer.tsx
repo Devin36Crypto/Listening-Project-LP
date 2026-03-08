@@ -11,6 +11,7 @@ interface FooterProps {
   onOpenHelp?: () => void;
   onOpenContact?: () => void;
   onOpenLegal?: () => void;
+  onOpenStatus?: () => void;
 }
 
 export default function Footer({ 
@@ -22,7 +23,8 @@ export default function Footer({
   onOpenChangelog,
   onOpenHelp,
   onOpenContact,
-  onOpenLegal
+  onOpenLegal,
+  onOpenStatus
 }: FooterProps) {
   return (
     <footer className="bg-black border-t border-white/10 py-12">
@@ -129,6 +131,16 @@ export default function Footer({
             <p>
               © {new Date().getFullYear()} Listening Project. All rights reserved.
             </p>
+          </div>
+          
+          <div className="flex items-center gap-4">
+             <button 
+                onClick={onOpenStatus}
+                className="flex items-center gap-2 text-xs text-gray-600 hover:text-green-500 transition-colors"
+             >
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                System Status
+             </button>
           </div>
         </div>
       </div>

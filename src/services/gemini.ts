@@ -36,6 +36,16 @@ export async function sendChatMessage(
   }
 }
 
+export async function checkGeminiConnection(): Promise<boolean> {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return false;
+    return true; 
+  } catch (e) {
+    return false;
+  }
+}
+
 export async function generateSpeech(text: string): Promise<string | null> {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
