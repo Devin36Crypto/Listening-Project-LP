@@ -126,8 +126,8 @@ export default function Footer({
         </div>
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2 text-gray-500 text-sm">
-            <Headphones className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-brand-500/60 text-sm">
+            <Headphones className="w-4 h-4" style={{ color: '#00e5ff' }} />
             <p>
               © {new Date().getFullYear()} Listening Project. All rights reserved.
             </p>
@@ -138,7 +138,7 @@ export default function Footer({
               onClick={onOpenStatus}
               className="flex items-center gap-2 text-xs text-gray-500 hover:text-brand-600 transition-colors"
             >
-              <div className="w-2 h-2 bg-brand-700 rounded-full animate-pulse shadow-[0_0_5px_rgba(0,186,211,0.5)]" />
+              <div className="w-2 h-2 bg-brand-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(0,229,255,0.5)]" style={{ backgroundColor: '#00e5ff' }} />
               System Status
             </button>
           </div>
