@@ -117,12 +117,12 @@ export default function Pricing({ onPlanSelect }: PricingProps) {
               transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
               className={`relative p-8 rounded-3xl border flex flex-col ${plan.popular
-                  ? "bg-white/10 border-brand-500/50 shadow-2xl shadow-brand-500/10"
-                  : "bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors"
+                ? "bg-white/10 border-brand-500/50 shadow-2xl shadow-brand-500/10"
+                : "bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors"
                 }`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-500 text-black px-4 py-1 rounded-full text-sm font-bold shadow-lg shadow-brand-500/20">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-400 to-brand-600 text-black px-4 py-1 rounded-full text-sm font-bold shadow-lg shadow-brand-500/30">
                   Best Value
                 </div>
               )}
@@ -159,7 +159,10 @@ export default function Pricing({ onPlanSelect }: PricingProps) {
 
               <button
                 onClick={() => onPlanSelect?.(plan.variant as any, plan.planId)}
-                className="w-full py-4 rounded-xl font-bold transition-all text-lg bg-brand-500 hover:bg-brand-600 text-black shadow-lg hover:shadow-brand-500/25"
+                className={`w-full py-4 rounded-xl font-bold transition-all text-lg shadow-lg ${plan.popular
+                    ? "bg-gradient-to-br from-brand-400 to-brand-600 text-black hover:scale-[1.02] shadow-brand-500/25"
+                    : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
+                  }`}
               >
                 {plan.cta}
               </button>
