@@ -134,7 +134,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
             <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-4 w-full">
               <button
                 onClick={() => onOpenDownload("mobile")}
-                className="flex items-center gap-2 bg-white/10 text-white border border-white/10 px-8 py-4 rounded-full font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm w-full sm:w-auto justify-center"
+                className="flex items-center gap-2 bg-gradient-to-br from-brand-400/20 to-brand-600/20 text-brand-400 border border-brand-500/30 px-8 py-4 rounded-full font-bold hover:bg-brand-500/30 hover:scale-[1.05] transition-all backdrop-blur-sm w-full sm:w-auto justify-center shadow-lg shadow-brand-500/10"
               >
                 <Smartphone className="w-5 h-5" />
                 Download for Mobile
@@ -142,7 +142,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
 
               <button
                 onClick={() => onOpenDownload("desktop")}
-                className="flex items-center gap-2 bg-white/10 text-white border border-white/10 px-8 py-4 rounded-full font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm w-full sm:w-auto justify-center"
+                className="flex items-center gap-2 bg-gradient-to-br from-brand-400 to-brand-600 text-black px-8 py-4 rounded-full font-bold hover:scale-[1.05] transition-all w-full sm:w-auto justify-center shadow-xl shadow-brand-500/25"
               >
                 <Monitor className="w-5 h-5" />
                 Download for Desktop
@@ -151,7 +151,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
 
             <button
               onClick={() => onOpenDownload("tablet")}
-              className="flex items-center gap-2 bg-white/10 text-white border border-white/10 px-8 py-4 rounded-full font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm w-full sm:w-auto justify-center"
+              className="flex items-center gap-2 bg-white/5 text-gray-400 border border-white/10 px-8 py-4 rounded-full font-semibold hover:bg-white/10 hover:text-white transition-all backdrop-blur-sm w-full sm:w-auto justify-center"
             >
               <Tablet className="w-5 h-5" />
               Download for Tablet

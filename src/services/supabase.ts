@@ -17,12 +17,33 @@ export async function recordDownload(platform: string) {
     const { error } = await supabase
       .from('downloads')
       .insert([{ platform }]);
-    
+
     if (error) {
       console.warn('Failed to record download:', error);
     }
   } catch (e) {
     console.warn('Error recording download:', e);
+  }
+}
+
+export async function startTrial(userId: string) {
+  try {
+    const { error } = await supabase
+      .from('subscriptions')
+      .upsert({
+        user_id: userId,
+        status: 'trialing',
+        trial_start_date: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+
+    if (error) {
+      console.warn('Failed to start trial:', error);
+      throw error;
+    }
+  } catch (e) {
+    console.error('Error starting trial:', e);
+    throw e;
   }
 }
 
@@ -44,7 +65,10 @@ export async function getDownloadStats() {
       .select('*', { count: 'exact', head: true });
 
     if (weeklyError || totalError) {
-      console.warn('Error fetching download stats:', weeklyError || totalError);
+      // If table doesn't exist, it's a 404. We should just return 0 and not log it every time as a warning if it's expected in some envs.
+      if (weeklyError?.code !== '42P01' && totalError?.code !== '42P01') {
+        console.warn('Error fetching download stats:', weeklyError || totalError);
+      }
       return { weekly: 0, total: 0 };
     }
 
@@ -53,7 +77,7 @@ export async function getDownloadStats() {
       total: totalCount || 0
     };
   } catch (e) {
-    console.warn('Error fetching download stats:', e);
+    // Avoid crashing the whole app if stats fail
     return { weekly: 0, total: 0 };
   }
 }

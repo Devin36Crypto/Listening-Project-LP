@@ -80,7 +80,9 @@ export default function App() {
     setIsDownloadOpen(true);
   };
 
-  if (session) {
+  // Only redirect to the "App" view if logged in AND the download modal isn't active
+  // This allows users to finish the Signup -> Payment -> Install flow without the modal disappearing
+  if (session && !isDownloadOpen) {
     return (
       <ListeningApp
         onClose={() => supabase.auth.signOut()}

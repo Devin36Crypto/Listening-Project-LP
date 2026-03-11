@@ -22,3 +22,18 @@ export const VOICES = [
 export const MODEL_LIVE = 'gemini-2.5-flash-native-audio-preview-09-2025';
 export const INPUT_SAMPLE_RATE = 16000;
 export const OUTPUT_SAMPLE_RATE = 24000;
+
+export const VIP_LIST = [
+    'Menard.Devin.dm@gmail.com', // Slot 1: User's Email
+    '', // Slot 2
+    '', // Slot 3
+    '', // Slot 4
+    '', // Slot 5
+    '', // Slot 6
+    '', // Slot 7
+    '', // Slot 8
+    '', // Slot 9
+    '', // Slot 10
+    '', // Slot 11
+    '', // Slot 12
+];

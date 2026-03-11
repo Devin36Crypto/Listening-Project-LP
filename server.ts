@@ -7,7 +7,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || '3001', 10);
+const HOST = '0.0.0.0';
 
 // Initialize Resend with API Key from environment variables
 const resend = new Resend(process.env.RESEND_API_KEY || 're_123456789');

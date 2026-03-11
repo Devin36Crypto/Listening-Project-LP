@@ -1,4 +1,7 @@
-# Listening Project
+# Listening Project - Landing Page & Website
+
+> [!NOTE]
+> This repository contains the **Landing Page and Website** for the Listening Project. It is separate from the [Core Application](file:///c:/Users/menar/.gemini/antigravity/scratch/listening-project).
 
 The Listening Project is a neural audio interface designed to decode the world around you. We bypass traditional, high-latency speech-to-text pipelines by leveraging the Gemini Multimodal Live API, delivering fluid, context-aware translation that understands nuance, tone, and speaker identity in real-time.
 
