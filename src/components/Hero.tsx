@@ -84,7 +84,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
           </span>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 font-display">
             <span className="inline-flex items-center gap-3 sm:gap-5">
-              <Headphones className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-brand-500 drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]" />
+              <img src="/icon.png" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]" alt="" />
               Hear More.
             </span>
             <br />
