@@ -24,7 +24,7 @@ export const INPUT_SAMPLE_RATE = 16000;
 export const OUTPUT_SAMPLE_RATE = 24000;
 
 export const VIP_LIST = [
-    'Menard.Devin.dm@gmail.com', // Slot 1: User's Email
+    'menard.devin.dm@gmail.com', // Slot 1: User's Email
     '', // Slot 2
     '', // Slot 3
     '', // Slot 4

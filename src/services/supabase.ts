@@ -16,40 +16,38 @@ export const supabase = createClient(
   supabaseAnonKey || DEFAULT_KEY
 );
 
-export async function recordDownload(platform: string) {
+export const recordDownload = async (platform: string) => {
   try {
     const { error } = await supabase
       .from('downloads')
       .insert([{ platform }]);
-
-    if (error) {
-      console.warn('Failed to record download:', error);
-    }
-  } catch (e) {
-    console.warn('Error recording download:', e);
+    if (error) console.error('Error recording download:', error);
+  } catch (err) {
+    console.error('Failed to record download:', err);
   }
-}
+};
 
-export async function startTrial(userId: string) {
+export const startTrial = async (userId: string) => {
   try {
     const { error } = await supabase
       .from('subscriptions')
-      .upsert({
-        user_id: userId,
-        status: 'trialing',
-        trial_start_date: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
-
+      .insert([{ 
+        user_id: userId, 
+        status: 'trialing', 
+        trial_start_date: new Date().toISOString() 
+      }]);
     if (error) {
-      console.warn('Failed to start trial:', error);
-      throw error;
+      console.warn('Error starting trial (schema mismatch likely):', error);
+      // Attempt without trial_start_date as fallback
+      const { error: retryError } = await supabase
+        .from('subscriptions')
+        .insert([{ user_id: userId, status: 'trialing' }]);
+      if (retryError) console.error('Retry trial start failed:', retryError);
     }
-  } catch (e) {
-    console.error('Error starting trial:', e);
-    throw e;
+  } catch (err) {
+    console.error('Failed to start trial:', err);
   }
-}
+};
 
 export async function getDownloadStats() {
   try {

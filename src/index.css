@@ -5,9 +5,17 @@
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
+  --color-brand-50: #f0fdff;
+  --color-brand-100: #e0faff;
+  --color-brand-200: #bbf6ff;
+  --color-brand-300: #7ef0ff;
+  --color-brand-400: #33e8ff;
   --color-brand-500: #00e5ff;
-  --color-brand-600: #00d1e6;
-  --color-brand-400: #33eaff;
+  --color-brand-600: #00b8cc;
+  --color-brand-700: #008b99;
+  --color-brand-800: #006673;
+  --color-brand-900: #004a54;
+  --color-brand-950: #00292f;
 }
 
 @layer utilities {

@@ -24,6 +24,15 @@ window.ResizeObserver = vi.fn().mockImplementation(() => ({
     disconnect: vi.fn(),
 }));
 
+// Mock IntersectionObserver
+class IntersectionObserverMock {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+    constructor(callback: any, options: any) { }
+}
+vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
+
 // Mock AudioContext
 class AudioContextMock {
     sampleRate = 16000;

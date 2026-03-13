@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Features from "./components/Features";
@@ -7,16 +7,18 @@ import Pricing from "./components/Pricing";
 import Footer from "./components/Footer";
 import LegalBanner from "./components/LegalBanner";
 import DownloadModal from "./components/DownloadModal";
-import PrivacyPolicy from "./components/PrivacyPolicy";
-import TermsOfService from "./components/TermsOfService";
-import FeaturesModal from "./components/FeaturesModal";
-import AboutModal from "./components/AboutModal";
-import ChangelogModal from "./components/ChangelogModal";
-import HelpCenterModal from "./components/HelpCenterModal";
-import ContactModal from "./components/ContactModal";
-import LegalDisclaimerModal from "./components/LegalDisclaimerModal";
-import SystemStatusModal from "./components/SystemStatusModal";
-import ListeningApp from "./components/ListeningApp";
+
+// Lazy load large components/modals
+const PrivacyPolicy = lazy(() => import("./components/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./components/TermsOfService"));
+const FeaturesModal = lazy(() => import("./components/FeaturesModal"));
+const AboutModal = lazy(() => import("./components/AboutModal"));
+const ChangelogModal = lazy(() => import("./components/ChangelogModal"));
+const HelpCenterModal = lazy(() => import("./components/HelpCenterModal"));
+const ContactModal = lazy(() => import("./components/ContactModal"));
+const LegalDisclaimerModal = lazy(() => import("./components/LegalDisclaimerModal"));
+const SystemStatusModal = lazy(() => import("./components/SystemStatusModal"));
+const ListeningApp = lazy(() => import("./components/ListeningApp"));
 import { supabase } from "./services/supabase";
 
 export default function App() {
@@ -84,11 +86,13 @@ export default function App() {
   // This allows users to finish the Signup -> Payment -> Install flow without the modal disappearing
   if (session && !isDownloadOpen) {
     return (
-      <ListeningApp
-        onClose={() => supabase.auth.signOut()}
-        deferredPrompt={deferredPrompt}
-        onInstall={handleInstallApp}
-      />
+      <Suspense fallback={<div className="fixed inset-0 bg-black flex items-center justify-center text-brand-500"><div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" /></div>}>
+        <ListeningApp
+          onClose={() => supabase.auth.signOut()}
+          deferredPrompt={deferredPrompt}
+          onInstall={handleInstallApp}
+        />
+      </Suspense>
     );
   }
 
@@ -136,22 +140,24 @@ export default function App() {
           initialPlanId={initialPlanId}
         />
 
-        <PrivacyPolicy isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
-        <TermsOfService isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
-        <FeaturesModal isOpen={isFeaturesModalOpen} onClose={() => setIsFeaturesModalOpen(false)} />
-        <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
-        <ChangelogModal isOpen={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} />
-        <HelpCenterModal
-          isOpen={isHelpOpen}
-          onClose={() => setIsHelpOpen(false)}
-          onContactSupport={() => {
-            setIsHelpOpen(false);
-            setIsContactOpen(true);
-          }}
-        />
-        <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
-        <LegalDisclaimerModal isOpen={isLegalOpen} onClose={() => setIsLegalOpen(false)} />
-        <SystemStatusModal isOpen={isStatusOpen} onClose={() => setIsStatusOpen(false)} />
+        <Suspense fallback={null}>
+          <PrivacyPolicy isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
+          <TermsOfService isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
+          <FeaturesModal isOpen={isFeaturesModalOpen} onClose={() => setIsFeaturesModalOpen(false)} />
+          <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+          <ChangelogModal isOpen={isChangelogOpen} onClose={() => setIsChangelogOpen(false)} />
+          <HelpCenterModal
+            isOpen={isHelpOpen}
+            onClose={() => setIsHelpOpen(false)}
+            onContactSupport={() => {
+              setIsHelpOpen(false);
+              setIsContactOpen(true);
+            }}
+          />
+          <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+          <LegalDisclaimerModal isOpen={isLegalOpen} onClose={() => setIsLegalOpen(false)} />
+          <SystemStatusModal isOpen={isStatusOpen} onClose={() => setIsStatusOpen(false)} />
+        </Suspense>
       </div>
     </div>
   );

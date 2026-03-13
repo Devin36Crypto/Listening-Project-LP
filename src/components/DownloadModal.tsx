@@ -2,7 +2,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Smartphone, Monitor, Download, MoreVertical, Tablet, CreditCard, Check, ChevronDown, Lock, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase, recordDownload, startTrial } from "../services/supabase";
-import { Purchases } from "@revenuecat/purchases-js";
 import { VIP_LIST } from "../constants";
 
 interface DownloadModalProps {
@@ -31,10 +30,11 @@ export default function DownloadModal({
   initialPlanId
 }: DownloadModalProps) {
   const [activeTab, setActiveTab] = useState<"ios" | "android" | "desktop">("desktop");
-  const [step, setStep] = useState<"selection" | "verification" | "payment" | "account_setup" | "install">("selection");
+  const [step, setStep] = useState<"selection" | "payment" | "account_setup" | "install">("selection");
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDisclaimerAccepted, setIsDisclaimerAccepted] = useState(false);
+  const [tempUserId, setTempUserId] = useState<string | null>(null);
 
   // Form State
   const [email, setEmail] = useState("");
@@ -88,7 +88,7 @@ export default function DownloadModal({
       } else {
         setSelectedPlanId(plans[0].id);
       }
-      setStep("verification");
+      setStep("account_setup");
       
       // Reset form
       setEmail("");
@@ -120,46 +120,31 @@ export default function DownloadModal({
     }
   }, [variant]);
 
-  const handleVerification = async () => {
-    setIsProcessing(true);
-    setError(null);
-    try {
-      if (VIP_LIST.includes(email.trim())) {
-        // Check if user already exists
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user && user.email === email.trim()) {
-           setStep("install");
-        } else {
-           setStep("account_setup");
-        }
-      } else {
-        // ALWAYS go to account setup first for non-VIPs too
-        setStep("account_setup");
-      }
-    } catch (err: any) {
-      setError(err.message || "An error occurred during verification.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   const handleAccountSetup = async () => {
     setIsProcessing(true);
     setError(null);
     try {
-      const { error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
       if (authError) throw authError;
       
+      const userId = data.user?.id;
+      if (userId) {
+        setTempUserId(userId);
+      }
+      
       const platform = activeTab === 'ios' ? 'ios' : activeTab === 'android' ? 'android' : 'desktop';
-      recordDownload(platform);
+      // Non-blocking tracking calls
+      recordDownload(platform).catch(err => console.error('recordDownload failed:', err));
       
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) await startTrial(user.id);
+      if (userId) {
+        startTrial(userId).catch(err => console.error('startTrial failed:', err));
+      }
       
-      if (VIP_LIST.includes(email.trim())) {
+      if (VIP_LIST.map(v => v.toLowerCase()).includes(email.trim().toLowerCase())) {
         setStep("install");
       } else {
         setStep("payment");
@@ -185,10 +170,12 @@ export default function DownloadModal({
 
       // Record trial start in Supabase
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await startTrial(user.id);
+      const userId = user?.id || tempUserId;
+
+      if (userId) {
+        await startTrial(userId);
       } else {
-        throw new Error("User session not found. Please log in again.");
+        throw new Error("Unable to identify account. Please ensure your email is correct and try again.");
       }
 
       // Simulate payment processing delay
@@ -230,8 +217,8 @@ export default function DownloadModal({
             <div className="flex items-center gap-3">
               <Download className="w-6 h-6 text-brand-500" />
               <h2 className="text-xl font-bold font-display flex items-center gap-2">
-                {step === "install" ? "Install Listening Project" : (step === "verification" ? "Verify Membership" : (step === "account_setup" ? "Secure Account" : (step === "payment" ? "Secure Payment" : "Select Plan & Download")))}
-                <span className="text-[10px] text-gray-600 font-mono">v1.2-seq</span>
+                {step === "install" ? "Install Listening Project" : (step === "account_setup" ? "Secure Account" : (step === "payment" ? "Secure Payment" : "Select Plan & Download"))}
+                <span className="text-[10px] text-gray-600 font-mono">v1.5-VIP-FIXED</span>
               </h2>
             </div>
             <button
@@ -244,28 +231,21 @@ export default function DownloadModal({
 
           <div className="flex-1 overflow-y-auto px-6 py-8">
             {/* Progress Bar */}
-            {step !== "install" && (
-              <div className="flex gap-2 mb-8">
-                {["selection", "verification", "account_setup", "payment"].map((s, i) => {
-                  // Skip payment indicator if it's a VIP user (though they might not know yet until verification)
-                  // For simplicity, we show all blocks and color them as we go.
-                  const isPast = (step === "verification" && i < 1) || 
-                                 (step === "account_setup" && i < 2) || 
-                                 (step === "payment" && i < 3);
-                  const isCurrent = step === s;
-                  
-                  return (
-                    <div key={s} className="flex-1 h-1.5 rounded-full bg-white/5 relative overflow-hidden">
-                      <motion.div 
-                        className="absolute inset-0 bg-brand-500"
-                        initial={{ x: "-100%" }}
-                        animate={{ x: (isCurrent || isPast) ? "0%" : "-100%" }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <div className="flex gap-2 mb-8">
+              {["account_setup", "payment", "install"].map((s, i) => {
+                const isPast = (step === "payment" && i < 1) || (step === "install" && i < 2);
+                const isCurrent = step === s;
+                return (
+                  <div key={s} className="flex-1 h-1.5 rounded-full bg-white/5 relative overflow-hidden">
+                    <motion.div 
+                      className="absolute inset-0 bg-brand-500"
+                      initial={{ x: "-100%" }}
+                      animate={{ x: (isCurrent || isPast) ? "0%" : "-100%" }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
 
             {step === "selection" && !isLoginMode && (
               <div className="space-y-6">
@@ -309,14 +289,14 @@ export default function DownloadModal({
 
                 <div className="flex flex-col gap-3 mt-6">
                   <button
-                    onClick={() => setStep("verification")}
+                    onClick={() => setStep("account_setup")}
                     className="w-full bg-gradient-to-br from-brand-400 to-brand-600 text-black py-4 rounded-xl font-bold text-lg transition-all hover:scale-[1.02] shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2"
                   >
                     Continue to Get Started <ChevronDown className="w-5 h-5 rotate-[-90deg]" />
                   </button>
 
                   <button
-                    onClick={() => { setIsLoginMode(true); setStep("verification"); }}
+                    onClick={() => { setIsLoginMode(true); setStep("account_setup"); }}
                     className="text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     Already have an account? Log in
@@ -325,14 +305,16 @@ export default function DownloadModal({
               </div>
             )}
 
-            {step === "verification" && (
+            {step === "account_setup" && (
               <div className="space-y-6">
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold mb-2">Waitlist Verification</h3>
-                  <p className="text-gray-400">Enter your email to check your membership status.</p>
+                  <h3 className="text-2xl font-bold mb-2 text-brand-400">
+                    Create Your Account
+                  </h3>
+                  <p className="text-gray-400">Enter your details to secure your account.</p>
                 </div>
 
-                <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                <div className="bg-white/5 p-6 rounded-xl border border-white/10 space-y-4">
                   {error && (
                     <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm mb-4">
                       {error}
@@ -350,33 +332,6 @@ export default function DownloadModal({
                       placeholder="you@example.com"
                     />
                   </div>
-                </div>
-
-                <button
-                  onClick={handleVerification}
-                  disabled={isProcessing || !email}
-                  className="w-full bg-gradient-to-br from-brand-400 to-brand-600 text-black py-4 rounded-xl font-bold text-lg transition-all hover:scale-[1.02] shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Continue"}
-                </button>
-              </div>
-            )}
-
-            {step === "account_setup" && (
-              <div className="space-y-6">
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold mb-2 text-brand-400">
-                    {VIP_LIST.includes(email.trim()) ? "VIP Access Confirmed" : "Create Your Account"}
-                  </h3>
-                  <p className="text-gray-400">Set a password to secure your {email} account.</p>
-                </div>
-
-                <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                  {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm mb-4">
-                      {error}
-                    </div>
-                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-1">Secure Password</label>
@@ -387,7 +342,7 @@ export default function DownloadModal({
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors"
-                        placeholder="Create a password"
+                        placeholder="Min. 8 characters"
                       />
                       <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     </div>
@@ -396,19 +351,18 @@ export default function DownloadModal({
 
                 <button
                   onClick={handleAccountSetup}
-                  disabled={isProcessing || !password}
+                  disabled={isProcessing || !email || !password || password.length < 8}
                   className="w-full bg-gradient-to-br from-brand-400 to-brand-600 text-black py-4 rounded-xl font-bold text-lg transition-all hover:scale-[1.02] shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : (VIP_LIST.includes(email.trim()) ? "Secure Account & Download" : "Continue to Payment")}
+                  {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign Up & Continue"}
                 </button>
               </div>
             )}
 
-
             {step === "payment" && (
               <div className="space-y-6">
                 <div className="flex items-center gap-2 text-sm text-gray-400 mb-4 cursor-pointer hover:text-white" onClick={() => setStep("account_setup")}>
-                  <ChevronDown className="w-4 h-4 rotate-90" /> Back to account setup
+                  <ChevronDown className="w-4 h-4 rotate-90" /> Back to Account Setup
                 </div>
 
                 <div className="bg-white/5 p-6 rounded-xl border border-white/10">
@@ -466,20 +420,20 @@ export default function DownloadModal({
                   </div>
                 </div>
 
-                  <div className="bg-brand-500/5 border border-brand-500/10 rounded-xl p-4 flex items-start gap-3">
-                    <div className="flex items-center h-5 mt-0.5">
-                      <input
-                        id="legal-agreement"
-                        type="checkbox"
-                        checked={isDisclaimerAccepted}
-                        onChange={(e) => setIsDisclaimerAccepted(e.target.checked)}
-                        className="w-4 h-4 text-brand-600 bg-black/50 border-brand-500/30 rounded focus:ring-brand-500 focus:ring-offset-0 cursor-pointer"
-                      />
-                    </div>
-                    <label htmlFor="legal-agreement" className="text-sm text-brand-400/80 cursor-pointer select-none">
-                      I acknowledge that I am solely responsible for complying with all applicable laws regarding the recording of conversations in my jurisdiction. I agree to the Terms of Service and Privacy Policy.
-                    </label>
+                <div className="bg-brand-500/5 border border-brand-500/10 rounded-xl p-4 flex items-start gap-3">
+                  <div className="flex items-center h-5 mt-0.5">
+                    <input
+                      id="legal-agreement"
+                      type="checkbox"
+                      checked={isDisclaimerAccepted}
+                      onChange={(e) => setIsDisclaimerAccepted(e.target.checked)}
+                      className="w-4 h-4 text-brand-600 bg-black/50 border-brand-500/30 rounded focus:ring-brand-500 focus:ring-offset-0 cursor-pointer"
+                    />
                   </div>
+                  <label htmlFor="legal-agreement" className="text-sm text-brand-400/80 cursor-pointer select-none">
+                    I acknowledge that I am solely responsible for complying with all applicable laws regarding the recording of conversations in my jurisdiction. I agree to the Terms of Service and Privacy Policy.
+                  </label>
+                </div>
 
                 <div className="flex flex-col gap-3">
                   <button
@@ -499,17 +453,10 @@ export default function DownloadModal({
                       </>
                     )}
                   </button>
-
-                  <button
-                    onClick={() => setStep("selection")}
-                    className="text-sm text-gray-500 hover:text-gray-400 transition-colors"
-                  >
-                    Want to switch plans?
-                  </button>
                 </div>
 
                 <p className="text-center text-xs text-gray-500">
-                  Your payment is secured with 256-bit SSL encryption. We do not store your credit card details. Billing starts after your 3-day free trial ends. Cancel anytime.
+                  Your payment is secured with 256-bit SSL encryption. Billing starts after your 3-day free trial ends. Cancel anytime.
                 </p>
               </div>
             )}
@@ -528,7 +475,6 @@ export default function DownloadModal({
                   <p className="text-gray-400">Your account has been created and subscription started.</p>
                 </div>
 
-                {/* Install/Open Button */}
                 <div className="mb-8 p-6 bg-brand-600/10 border border-brand-500/20 rounded-xl text-center">
                   <h3 className="text-lg font-semibold text-white mb-2">Ready to Use</h3>
                   <p className="text-brand-200 mb-4 text-sm">
@@ -558,36 +504,8 @@ export default function DownloadModal({
                   </div>
                 </div>
 
-                {/* Manual Instructions Tabs - Only show if Auto */}
-                {showTabs && (
-                  <div className="flex gap-2 mb-6 bg-white/5 p-1 rounded-xl">
-                    <button
-                      onClick={() => setActiveTab("android")}
-                      className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === "android" ? "bg-gradient-to-r from-brand-400 to-brand-600 text-black shadow-lg" : "text-gray-400 hover:text-white hover:bg-white/5"
-                        }`}
-                    >
-                      <Smartphone className="w-4 h-4" />
-                      Android
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("desktop")}
-                      className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === "desktop" ? "bg-gradient-to-r from-brand-400 to-brand-600 text-black shadow-lg" : "text-gray-400 hover:text-white hover:bg-white/5"
-                        }`}
-                    >
-                      <Monitor className="w-4 h-4" />
-                      Desktop
-                    </button>
-                  </div>
-                )}
-
-                {/* Instructions Content */}
+                {/* Manual Instructions Content */}
                 <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                  {activeTab === "ios" && (
-                    <div className="space-y-4 text-center">
-                      <p className="text-gray-400">iOS version is coming soon.</p>
-                    </div>
-                  )}
-
                   {activeTab === "android" && (
                     <div className="space-y-4">
                       <div className="flex items-start gap-4">
@@ -607,17 +525,6 @@ export default function DownloadModal({
                             Tap "Install app" or "Add to Home screen".
                           </p>
                         </div>
-                      </div>
-                      <div className="mt-6 pt-6 border-t border-white/10">
-                        <a
-                          href="https://play.google.com/store/apps"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 w-full bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl transition-colors font-medium"
-                        >
-                          <Smartphone className="w-5 h-5" />
-                          View on Google Play Store
-                        </a>
                       </div>
                     </div>
                   )}
@@ -643,6 +550,29 @@ export default function DownloadModal({
                         </div>
                       </div>
                     </div>
+                  )}
+
+                  {activeTab === "ios" && (
+                     <div className="space-y-4">
+                     <div className="flex items-start gap-4">
+                       <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 font-bold text-brand-400">1</div>
+                       <div>
+                         <p className="text-white font-medium mb-1">Tap Share</p>
+                         <p className="text-sm text-gray-400">
+                           Tap the share button in Safari.
+                         </p>
+                       </div>
+                     </div>
+                     <div className="flex items-start gap-4">
+                       <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 font-bold text-brand-400">2</div>
+                       <div>
+                         <p className="text-white font-medium mb-1">Add to Home Screen</p>
+                         <p className="text-sm text-gray-400">
+                           Tap "Add to Home Screen".
+                         </p>
+                       </div>
+                     </div>
+                   </div>
                   )}
                 </div>
               </motion.div>
