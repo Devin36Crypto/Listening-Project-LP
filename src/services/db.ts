@@ -82,7 +82,16 @@ export async function importSessions(sessions: Session[], key: string | null): P
 }
 
 export async function getStorageUsage(key: string | null = null): Promise<number> {
-    // Rough estimate
+    try {
+        if (navigator.storage && navigator.storage.estimate) {
+            const estimate = await navigator.storage.estimate();
+            return estimate.usage || 0;
+        }
+    } catch (e) {
+        console.warn('Navigator storage estimate failed, falling back to JSON size', e);
+    }
+    
+    // Fallback: Rough estimate based on JSON size
     const sessions = await getSessions(key);
     const json = JSON.stringify(sessions);
     return new Blob([json]).size;

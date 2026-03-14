@@ -8,7 +8,13 @@ if (!revenueCatApiKey) {
 
 // Initialize RevenueCat only if key is present
 if (revenueCatApiKey) {
-  Purchases.configure(revenueCatApiKey, 'app_user_id'); // Replace 'app_user_id' with actual user ID when available
+  try {
+    Purchases.configure(revenueCatApiKey, 'app_user_id'); 
+    console.log('RevenueCat initialized successfully');
+  } catch (err) {
+    console.error('Failed to initialize RevenueCat:', err);
+    // Non-blocking: continue application load
+  }
 }
 
 export const purchases = Purchases.getSharedInstance();

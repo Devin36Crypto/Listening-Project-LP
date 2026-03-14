@@ -4,17 +4,10 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase URL or Anon Key. Please check your .env file.');
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-// Production fallbacks to ensure live site works even if env vars are missing in dashboard
-const DEFAULT_URL = 'https://uydybhioyjdmncvixsoc.supabase.co';
-const DEFAULT_KEY = 'sb_publishable_n5zHT7U443Bs7rrwVRra9w_7PzCxxVb';
-
-export const supabase = createClient(
-  supabaseUrl || DEFAULT_URL,
-  supabaseAnonKey || DEFAULT_KEY
-);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const recordDownload = async (platform: string) => {
   try {

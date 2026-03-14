@@ -11,8 +11,8 @@ vi.mock('../services/supabase', () => ({
       getUser: vi.fn(() => ({ data: { user: null } })),
     },
   },
-  recordDownload: vi.fn(),
-  startTrial: vi.fn(),
+  recordDownload: vi.fn().mockResolvedValue({}),
+  startTrial: vi.fn().mockResolvedValue({}),
 }));
 
 // Mock Purchases
@@ -38,7 +38,7 @@ describe('DownloadModal Flow', () => {
     
     expect(screen.getByText(/Create Your Account/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/you@example.com/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Create a password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Min. 8 characters/i)).toBeInTheDocument();
   });
 
   it('should transition to payment step for non-VIP users', async () => {
@@ -48,7 +48,7 @@ describe('DownloadModal Flow', () => {
     render(<DownloadModal {...defaultProps} />);
     
     fireEvent.change(screen.getByPlaceholderText(/you@example.com/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByPlaceholderText(/Create a password/i), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText(/Min. 8 characters/i), { target: { value: 'password123' } });
     
     const signupBtn = screen.getByText(/Sign Up & Continue/i);
     console.log('Button disabled state:', (signupBtn as HTMLButtonElement).disabled);
@@ -69,13 +69,14 @@ describe('DownloadModal Flow', () => {
     render(<DownloadModal {...defaultProps} />);
     
     fireEvent.change(screen.getByPlaceholderText(/you@example.com/i), { target: { value: vipEmail } });
-    fireEvent.change(screen.getByPlaceholderText(/Create a password/i), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText(/Min. 8 characters/i), { target: { value: 'password123' } });
     
     const signupBtn = screen.getByText(/Sign Up & Continue/i);
     fireEvent.click(signupBtn);
     
     await waitFor(() => {
-      expect(screen.getByText(/Ready to Use/i)).toBeInTheDocument();
+      expect(screen.getByText(/Success!/i)).toBeInTheDocument();
+      expect(screen.getByText(/Installation Guide/i)).toBeInTheDocument();
     });
   });
 });

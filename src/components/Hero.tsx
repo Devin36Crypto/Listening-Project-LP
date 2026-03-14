@@ -1,4 +1,4 @@
-import { Smartphone, Monitor, Download, Headphones, Tablet, Loader2 } from "lucide-react";
+import { Smartphone, Monitor, Download, Tablet, Loader2, Headphones } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDownloadStats } from "../services/supabase";
 
@@ -71,10 +71,24 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
 
   return (
     <section id="download" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-      {/* Background Gradients */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-500/10 rounded-full blur-[128px]" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-sky-500/5 rounded-full blur-[128px]" />
+      {/* Dynamic Background Atmosphere with Prism Icons */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[10%] left-[10%] w-64 h-64 bg-brand-500/10 rounded-full blur-[100px] animate-float opacity-50" />
+        <div className="absolute bottom-[10%] right-[10%] w-80 h-80 bg-sky-500/10 rounded-full blur-[120px] animate-float opacity-30" style={{ animationDelay: '-5s' }} />
+        
+        {/* Floating Prism Icons */}
+        <img 
+          src="/prism-official-brand-mark.png" 
+          alt="" 
+          className="absolute top-[20%] right-[15%] w-32 h-32 opacity-20 blur-[2px] animate-float" 
+          style={{ animationDelay: '-2s' }}
+        />
+        <img 
+          src="/prism-master-verified.webp" 
+          alt="" 
+          className="absolute bottom-[25%] left-[15%] w-48 h-48 opacity-10 blur-[4px] animate-float" 
+          style={{ animationDelay: '-8s' }}
+        />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -84,7 +98,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
           </span>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 font-display">
             <span className="inline-flex items-center gap-3 sm:gap-5">
-              <img src="/icon.png" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]" alt="" />
+              <Headphones className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-brand-400 drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]" />
               Hear More.
             </span>
             <br />
@@ -93,7 +107,7 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
             </span>
           </h1>
           <p className="mt-4 text-xl text-gray-400 max-w-2xl mx-auto mb-8">
-            The Listening Project uses advanced AI to help you capture, analyze, and truly understand every conversation. Available now on Android and Desktop.
+            Listeningproject uses advanced AI to help you capture, analyze, and truly understand every conversation. Available now on Android and Desktop.
           </p>
 
           {/* Animated Stat */}

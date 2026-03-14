@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, ErrorInfo } from 'react';
 import * as Sentry from '@sentry/react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
@@ -11,17 +11,18 @@ interface State {
     error: Error | null;
 }
 
-class ErrorBoundary extends React.Component<Props, State> {
+class ErrorBoundary extends Component<Props, State> {
+    public state: State = { hasError: false, error: null };
+
     constructor(props: Props) {
         super(props);
-        this.state = { hasError: false, error: null };
     }
 
     static getDerivedStateFromError(error: Error): State {
         return { hasError: true, error };
     }
 
-    componentDidCatch(error: Error, info: React.ErrorInfo) {
+    componentDidCatch(error: Error, info: ErrorInfo) {
         console.error('ErrorBoundary caught:', error, info?.componentStack);
         // Report to Sentry with the React component stack for debugging
         Sentry.captureException(error, {
@@ -34,7 +35,8 @@ class ErrorBoundary extends React.Component<Props, State> {
     }
 
     render() {
-        if (this.state.hasError) {
+        const { hasError, error } = this.state;
+        if (hasError) {
             return (
                 <div className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center p-8 text-slate-200">
                     <div className="w-full max-w-md bg-slate-800 border border-red-500/30 rounded-2xl p-8 shadow-2xl shadow-red-900/20 text-center">
@@ -47,7 +49,7 @@ class ErrorBoundary extends React.Component<Props, State> {
                         </p>
                         <div className="bg-slate-900/80 border border-slate-700 rounded-lg p-4 mb-6 text-left">
                             <p className="text-xs font-mono text-red-300 break-all">
-                                {(this.state.error as Error)?.message || 'Unknown error'}
+                                {error?.message || 'Unknown error'}
                             </p>
                         </div>
                         <button

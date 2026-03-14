@@ -1,5 +1,5 @@
-import { Headphones } from "lucide-react";
 import Logo from "./Logo";
+import { Headphones } from "lucide-react";
 
 interface FooterProps {
   onOpenPrivacy?: () => void;
@@ -127,7 +127,7 @@ export default function Footer({
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2 text-brand-500/60 text-sm">
-            <Headphones className="w-4 h-4" style={{ color: '#00e5ff' }} />
+            <Headphones className="w-4 h-4 text-brand-400" />
             <p>
               © {new Date().getFullYear()} Listening Project. All rights reserved.
             </p>

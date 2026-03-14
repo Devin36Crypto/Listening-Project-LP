@@ -165,7 +165,7 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
 
     try {
       setError(null);
-      const apiKey = process.env.GEMINI_API_KEY; // This should be available in the env
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
         throw new Error("Gemini API Key not found");
       }
@@ -178,7 +178,7 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
       clearLogs();
 
       const session = await client.live.connect({
-        model: "gemini-2.5-flash-native-audio-preview-09-2025",
+        model: "gemini-1.5-flash-8b-exp-0924",
         callbacks: {
             onopen: () => {
                 setIsConnected(true);

@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from "motion/react";
-import { Quote, Headphones, Plus, Star } from "lucide-react";
+import { Quote, Plus, Star, Headphones } from "lucide-react";
 import { useState } from "react";
 import ReviewModal from "./ReviewModal";
+import Logo from "./Logo";
 
 const initialTestimonials = [
   {
@@ -40,7 +41,11 @@ export default function Testimonials() {
   };
 
   return (
-    <section id="testimonials" className="py-24 bg-black relative">
+    <section id="testimonials" className="py-24 bg-black relative overflow-hidden">
+      {/* Branded Background Watermark */}
+      <div className="absolute inset-0 pointer-events-none opacity-5 flex items-center justify-center">
+        <img src="/prism-official-brand-mark.png" alt="" className="w-1/2 max-w-2xl animate-neural-glow" />
+      </div>
       <ReviewModal
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
@@ -51,7 +56,7 @@ export default function Testimonials() {
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-4">
             <h2 className="text-3xl md:text-5xl font-bold font-display">Trusted by Better Listeners</h2>
-            <Headphones className="w-8 h-8 md:w-10 md:h-10 text-brand-500" style={{ color: '#00e5ff', filter: 'drop-shadow(0 0 8px rgba(0,229,255,0.4))' }} />
+            <Headphones className="w-8 h-8 md:w-10 md:h-10 text-brand-400" />
           </div>
           <p className="text-gray-400 max-w-2xl mx-auto mb-8">
             Join thousands of professionals who are upgrading their communication skills.

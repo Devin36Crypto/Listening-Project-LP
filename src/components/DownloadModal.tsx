@@ -217,12 +217,14 @@ export default function DownloadModal({
             <div className="flex items-center gap-3">
               <Download className="w-6 h-6 text-brand-500" />
               <h2 className="text-xl font-bold font-display flex items-center gap-2">
-                {step === "install" ? "Install Listening Project" : (step === "account_setup" ? "Secure Account" : (step === "payment" ? "Secure Payment" : "Select Plan & Download"))}
+                {step === "install" ? "Install Listeningproject" : (step === "account_setup" ? "Secure Listeningproject Account" : (step === "payment" ? "Secure Listeningproject Payment" : "Select Plan & Download"))}
                 <span className="text-[10px] text-gray-600 font-mono">v1.5-VIP-FIXED</span>
               </h2>
             </div>
             <button
               onClick={onClose}
+              aria-label="Close modal"
+              title="Close modal"
               className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
             >
               <X className="w-6 h-6" />
@@ -476,7 +478,7 @@ export default function DownloadModal({
                 </div>
 
                 <div className="mb-8 p-6 bg-brand-600/10 border border-brand-500/20 rounded-xl text-center">
-                  <h3 className="text-lg font-semibold text-white mb-2">Install Listening Project</h3>
+                  <h3 className="text-lg font-semibold text-white mb-2">Install Listeningproject</h3>
                   <p className="text-brand-200 mb-6 text-sm">
                     Download the actual language app for your Android device or open the web version.
                   </p>

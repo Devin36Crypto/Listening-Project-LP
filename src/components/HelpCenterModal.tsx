@@ -55,6 +55,8 @@ export default function HelpCenterModal({ isOpen, onClose, onContactSupport }: H
             <h2 className="text-xl font-bold font-display">Help Center</h2>
             <button
               onClick={onClose}
+              aria-label="Close modal"
+              title="Close modal"
               className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
             >
               <X className="w-6 h-6" />
@@ -79,7 +81,7 @@ export default function HelpCenterModal({ isOpen, onClose, onContactSupport }: H
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               {categories.map((category, index) => (
                 <div key={index} className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/[0.07] transition-colors group cursor-pointer">
-                  <div className="w-10 h-10 bg-brand-500/20 rounded-lg flex items-center justify-center mb-4 text-brand-400 group-hover:text-brand-300 transition-colors" style={{ color: '#33eaff', backgroundColor: 'rgba(0,229,255,0.2)' }}>
+                  <div className="w-10 h-10 bg-brand-500/20 rounded-lg flex items-center justify-center mb-4 text-brand-400 group-hover:text-brand-300 transition-colors">
                     <category.icon className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-4">{category.title}</h3>
@@ -98,7 +100,7 @@ export default function HelpCenterModal({ isOpen, onClose, onContactSupport }: H
             {/* Contact Support CTA */}
             <div className="bg-brand-600/10 border border-brand-500/20 rounded-xl p-8 text-center">
               <h3 className="text-xl font-bold text-white mb-2">Still need help?</h3>
-              <p className="text-brand-200 mb-6" style={{ color: '#33eaff' }}>Our support team is available 24/7 to assist you with any questions.</p>
+              <p className="text-brand-200 mb-6">Our support team is available 24/7 to assist you with any questions.</p>
               <button
                 onClick={onContactSupport}
                 className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-full font-semibold transition-colors"

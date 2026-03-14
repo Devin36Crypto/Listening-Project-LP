@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, Mail, MessageSquare, Send } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -89,6 +89,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             </div>
             <button 
               onClick={onClose}
+              aria-label="Close modal"
+              title="Close modal"
               className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
             >
               <X className="w-6 h-6" />

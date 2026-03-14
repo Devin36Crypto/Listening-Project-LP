@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, Star, User, Briefcase, MessageSquare, Loader2, Send } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -64,6 +64,8 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }: ReviewModalPr
             <h2 className="text-xl font-bold font-display text-white">Share Your Story</h2>
             <button 
               onClick={onClose}
+              aria-label="Close modal"
+              title="Close modal"
               className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
             >
               <X className="w-5 h-5" />
@@ -110,6 +112,8 @@ export default function ReviewModal({ isOpen, onClose, onSubmit }: ReviewModalPr
                       key={star}
                       type="button"
                       onClick={() => setRating(star)}
+                      aria-label={`Rate ${star} stars`}
+                      title={`Rate ${star} stars`}
                       className="focus:outline-none transition-transform hover:scale-110"
                     >
                       <Star 

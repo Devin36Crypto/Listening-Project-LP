@@ -90,9 +90,20 @@ interface PricingProps {
 export default function Pricing({ onPlanSelect }: PricingProps) {
   return (
     <section id="pricing" className="py-24 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      {/* Background Elements with Prism branding */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-900/10 rounded-full blur-[120px]" />
+        <img 
+          src="/prism-master-verified.webp" 
+          alt="" 
+          className="absolute top-[10%] left-[5%] w-48 h-48 opacity-10 blur-[2px] animate-float" 
+        />
+        <img 
+          src="/prism-official-brand-mark.png" 
+          alt="" 
+          className="absolute bottom-[10%] right-[5%] w-40 h-40 opacity-5 blur-[1px] animate-float" 
+          style={{ animationDelay: '-6s' }}
+        />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

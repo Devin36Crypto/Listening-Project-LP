@@ -53,10 +53,15 @@ export default function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="p-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+              className="p-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
             >
-              <div className="w-12 h-12 bg-brand-500/10 rounded-xl flex items-center justify-center mb-6 text-brand-400">
-                <feature.icon className="w-6 h-6" />
+              <div className="w-14 h-14 bg-brand-500/10 rounded-xl flex items-center justify-center mb-6 text-brand-400 relative overflow-hidden">
+                <img 
+                  src="/prism-master-verified.webp" 
+                  alt="" 
+                  className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity"
+                />
+                <feature.icon className="w-6 h-6 relative z-10" />
               </div>
               <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
               <p className="text-gray-400 leading-relaxed">

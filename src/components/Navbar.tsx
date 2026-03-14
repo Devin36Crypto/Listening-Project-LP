@@ -11,7 +11,7 @@ export default function Navbar({ onOpenDownload }: { onOpenDownload?: () => void
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.location.reload()}>
             <Logo className="w-10 h-10" />
-            <span className="text-xl font-bold tracking-tight font-display">Listening Project</span>
+            <span className="text-xl font-bold tracking-tight font-display">Listeningproject</span>
           </div>
 
           <div className="hidden md:block">
@@ -37,6 +37,7 @@ export default function Navbar({ onOpenDownload }: { onOpenDownload?: () => void
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
             >
               {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
             </button>
