@@ -40,6 +40,8 @@ export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
+    if (!supabase) return;
+
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
