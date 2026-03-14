@@ -22,9 +22,13 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   });
 }
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+// Debug Marker
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  rootElement.innerHTML = '<div style="background:red; color:white; padding:20px; position:fixed; z-index:9999;">JS EXECUTING...</div>';
+}
+
+const root = ReactDOM.createRoot(rootElement as HTMLElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
