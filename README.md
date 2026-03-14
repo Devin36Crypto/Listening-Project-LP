@@ -1,4 +1,4 @@
-# Listening Project - Landing Page & Website
+# ListeningProjectLp - Landing Page & Website
 
 > [!NOTE]
 > This repository contains the **Landing Page and Website** for the Listening Project. It is separate from the [Core Application](file:///c:/Users/menar/.gemini/antigravity/scratch/listening-project).
