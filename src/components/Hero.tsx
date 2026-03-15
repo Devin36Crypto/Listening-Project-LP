@@ -81,22 +81,19 @@ export default function Hero({ onOpenDownload }: { onOpenDownload: (variant: "au
         <img 
           src="/prism-logo.png" 
           alt="" 
-          className="absolute bottom-[10%] right-[10%] w-[32rem] h-[32rem] opacity-[0.04] blur-[50px] animate-float mix-blend-screen" 
-          style={{ animationDelay: '-5s' }} 
+          className="absolute bottom-[10%] right-[10%] w-[32rem] h-[32rem] opacity-[0.04] blur-[50px] animate-float mix-blend-screen [animation-delay:-5s]" 
         />
         
         {/* Floating Prism Icons */}
         <img 
           src="/prism-logo.png" 
           alt="" 
-          className="absolute top-[20%] right-[15%] w-32 h-32 opacity-20 blur-[2px] animate-float" 
-          style={{ animationDelay: '-2s' }}
+          className="absolute top-[20%] right-[15%] w-32 h-32 opacity-20 blur-[2px] animate-float [animation-delay:-2s]" 
         />
         <img 
           src="/prism-logo.png" 
           alt="" 
-          className="absolute bottom-[25%] left-[15%] w-48 h-48 opacity-10 blur-[4px] animate-float" 
-          style={{ animationDelay: '-8s' }}
+          className="absolute bottom-[25%] left-[15%] w-48 h-48 opacity-10 blur-[4px] animate-float [animation-delay:-8s]" 
         />
       </div>
 
