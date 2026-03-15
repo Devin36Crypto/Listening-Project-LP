@@ -33,7 +33,14 @@ describe('db service', () => {
       }
     });
 
+    // Suppress the expected console error for this test
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
     const usage = await getStorageUsage();
-    expect(usage).toBeGreaterThanOrEqual(0); // Should still return the fallback estimate
+    expect(usage).toBeGreaterThanOrEqual(0);
+    
+    consoleSpy.mockRestore();
+    logSpy.mockRestore();
   });
 });

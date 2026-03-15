@@ -176,8 +176,10 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
     try {
       setError(null);
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      console.log('Gemini: Initializing connection with API key present:', !!apiKey);
+
       if (!apiKey) {
-        throw new Error("Gemini API Key not found. Please set VITE_GEMINI_API_KEY in environment variables.");
+        throw new Error("Gemini API Key (VITE_GEMINI_API_KEY) not found. Please check your .env file.");
       }
 
       const client = new GoogleGenAI({ apiKey });

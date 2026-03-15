@@ -28,9 +28,11 @@ if (!revenueCatApiKey) {
        console.info('RevenueCat: Standard API key detected on localhost. Full subscription features may require a Web Billing key.');
     }
     
-    Purchases.configure(revenueCatApiKey, 'app_user_id'); 
-    console.log('RevenueCat initialized successfully');
-    isConfigured = true;
+    if (typeof window !== 'undefined' && Purchases.configure) {
+      Purchases.configure(revenueCatApiKey, 'app_user_id'); 
+      console.log('RevenueCat initialized successfully');
+      isConfigured = true;
+    }
   } catch (err) {
     // If it's the specific "Invalid API key" error on localhost, we can downgrade to a warning
     const errorMessage = err instanceof Error ? err.message : String(err);

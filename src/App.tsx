@@ -84,20 +84,6 @@ export default function App() {
     setIsDownloadOpen(true);
   };
 
-  // Only redirect to the "App" view if logged in AND the download modal isn't active
-  // This allows users to finish the Signup -> Payment -> Install flow without the modal disappearing
-  if (session && !isDownloadOpen) {
-    return (
-      <Suspense fallback={<div className="fixed inset-0 bg-black flex items-center justify-center text-brand-500"><div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" /></div>}>
-        <ListeningApp
-          onClose={() => supabase.auth.signOut()}
-          deferredPrompt={deferredPrompt}
-          onInstall={handleInstallApp}
-        />
-      </Suspense>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#1a1d22] text-white font-sans selection:bg-brand-500/30 overflow-x-hidden relative">
       {/* Dynamic Background Atmosphere with Prism Icons */}

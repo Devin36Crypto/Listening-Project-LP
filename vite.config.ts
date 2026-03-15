@@ -43,7 +43,10 @@ export default defineConfig(({mode}) => {
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify—file watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true',
+      hmr: process.env.DISABLE_HMR !== 'true' ? {
+        port: 24678,
+        host: '127.0.0.1'
+      } : false,
       proxy: {
         '/supabase-api': {
           target: 'https://uydybhioyjdmncvixsoc.supabase.co',
@@ -58,5 +61,17 @@ export default defineConfig(({mode}) => {
       setupFiles: './src/vitest-setup.ts',
       css: true,
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-ui': ['motion', 'lucide-react'],
+            'vendor-services': ['@supabase/supabase-js', 'resend'],
+            'vendor-rc': ['@revenuecat/purchases-js']
+          }
+        }
+      },
+      chunkSizeWarningLimit: 600
+    }
   };
 });
