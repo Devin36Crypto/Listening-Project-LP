@@ -5,7 +5,14 @@ import Footer from './Footer';
 describe('Footer Component', () => {
   it('renders branding and copyright', () => {
     render(<Footer />);
-    expect(screen.getByText('Listening Project')).toBeInTheDocument();
+    expect(screen.getByText((content, element) => {
+      const hasText = (node: Element) => node.textContent === 'Listening Project';
+      const nodeHasText = hasText(element as Element);
+      const childrenDontHaveText = Array.from(element?.children || []).every(
+        child => !hasText(child as Element)
+      );
+      return nodeHasText && childrenDontHaveText;
+    })).toBeInTheDocument();
     expect(screen.getByText(/© \d{4} Listening Project/)).toBeInTheDocument();
   });
 

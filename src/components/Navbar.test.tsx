@@ -5,7 +5,14 @@ import Navbar from './Navbar';
 describe('Navbar Component', () => {
   it('renders branding', () => {
     render(<Navbar />);
-    expect(screen.getByText('Listening Project')).toBeInTheDocument();
+    expect(screen.getByText((content, element) => {
+      const hasText = (node: Element) => node.textContent === 'Listening Project';
+      const nodeHasText = hasText(element as Element);
+      const childrenDontHaveText = Array.from(element?.children || []).every(
+        child => !hasText(child as Element)
+      );
+      return nodeHasText && childrenDontHaveText;
+    })).toBeInTheDocument();
   });
 
   it('renders navigation links', () => {
