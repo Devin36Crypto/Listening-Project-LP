@@ -33,6 +33,17 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  <script>
+    console.log('HTML: Inline script executing');
+    window.onload = function() {
+      console.log('HTML: Window loaded');
+      var root = document.getElementById('root');
+      if (root && root.innerHTML === "") {
+        console.log('HTML: Root is empty, providing fallback message');
+        root.innerHTML = '<div style="color:white; padding:20px;">Loading application core... if this persists, check console.</div>';
+      }
+    };
+  </script>
 </body>
 
 </html>

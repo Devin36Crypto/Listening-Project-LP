@@ -1,18 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || (isLocal ? `${window.location.origin}/supabase-api` : '');
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY || '';
 
 // Initialize Supabase only if keys are present to prevent top-level crashes
 let supabaseInstance: any = null;
+let mockSession: any = null;
+let authListeners: any[] = [];
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase environment variables. App will run in limited mode.');
-  // Provide a mock implementation for demo purposes
-  let mockSession: any = null;
-  let authListeners: any[] = [];
-  
-  supabaseInstance = {
+const createMockSupabaseClient = () => {
+  return {
     auth: {
       getSession: async () => ({ data: { session: mockSession }, error: null }),
       onAuthStateChange: (cb: any) => {
@@ -44,11 +42,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
       })
     })
   };
+};
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('Missing Supabase environment variables. App will run in limited mode.');
+  supabaseInstance = createMockSupabaseClient();
 } else {
   try {
     supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
   } catch (err) {
     console.error('Failed to initialize Supabase:', err);
+    supabaseInstance = createMockSupabaseClient();
   }
 }
 

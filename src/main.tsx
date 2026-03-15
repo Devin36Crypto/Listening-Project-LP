@@ -6,8 +6,11 @@ import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import './index.css';
 
+console.log('MAIN.TSX: Script loaded at top');
+
 // Initialize Sentry before rendering.
 // Only initializes if VITE_SENTRY_DSN is set — safe to omit in local dev.
+/*
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -21,11 +24,16 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     ],
   });
 }
+*/
 
 // Debug Marker
+console.log('MAIN.TSX: Initialization started');
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  rootElement.innerHTML = '<div style="background:red; color:white; padding:20px; position:fixed; z-index:9999;">JS EXECUTING...</div>';
+  console.log('MAIN.TSX: Root element found');
+  rootElement.innerHTML = '<div style="background:red; color:white; padding:20px; position:fixed; z-index:9999; top:0; left:0;">JS EXECUTING...</div>';
+} else {
+  console.error('MAIN.TSX: Root element NOT found');
 }
 
 const root = ReactDOM.createRoot(rootElement as HTMLElement);

@@ -5,6 +5,8 @@ const revenueCatApiKey = import.meta.env.VITE_REVENUECAT_PUBLIC_API_KEY;
 let isConfigured = false;
 let mockPurchases: any = null;
 
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
 if (!revenueCatApiKey) {
   console.warn('Missing RevenueCat Public API Key. App will run in demo mode.');
   mockPurchases = {
@@ -21,12 +23,22 @@ if (!revenueCatApiKey) {
   };
 } else {
   try {
+    // RC Web Billing keys usually start with 'strp_'
+    if (isLocal && !revenueCatApiKey.startsWith('strp_')) {
+       console.info('RevenueCat: Standard API key detected on localhost. Full subscription features may require a Web Billing key.');
+    }
+    
     Purchases.configure(revenueCatApiKey, 'app_user_id'); 
     console.log('RevenueCat initialized successfully');
     isConfigured = true;
   } catch (err) {
-    console.error('Failed to initialize RevenueCat:', err);
-    // Non-blocking: continue application load
+    // If it's the specific "Invalid API key" error on localhost, we can downgrade to a warning
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    if (isLocal && errorMessage.includes('Invalid API key')) {
+      console.warn('RevenueCat: Invalid API key for localhost. Subscription features will be disabled.');
+    } else {
+      console.error('Failed to initialize RevenueCat:', err);
+    }
   }
 }
 
