@@ -14,8 +14,8 @@ export default defineConfig(({mode}) => {
         registerType: 'autoUpdate',
         includeAssets: ['icon.png'],
         manifest: {
-          name: 'ListeningProjectLp',
-          short_name: 'ListeningLp',
+          name: 'Listening Project',
+          short_name: 'Listening Project',
           description: 'AI-powered audio transcription and emotional analysis',
           theme_color: '#000000',
           background_color: '#000000',

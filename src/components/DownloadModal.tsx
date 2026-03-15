@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Smartphone, Monitor, Download, MoreVertical, Tablet, CreditCard, Check, ChevronDown, Lock, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase, recordDownload, startTrial } from "../services/supabase";
+import { purchases } from "../services/revenuecat";
 import { VIP_LIST } from "../constants";
 
 interface DownloadModalProps {
@@ -178,11 +179,32 @@ export default function DownloadModal({
         throw new Error("Unable to identify account. Please ensure your email is correct and try again.");
       }
 
-      // Simulate payment processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!purchases) {
+        throw new Error("Billing is currently unavailable (Missing API Key). Please try again later.");
+      }
 
+      // Fetch RevenueCat offerings
+      const offerings = await purchases.getOfferings();
+      if (!offerings || !offerings.current) {
+        throw new Error("Could not load pricing plans. Please try again later.");
+      }
+
+      // Determine which package to buy based on selectedPlanId
+      // Assuming selectedPlanId contains "monthly" or "annual"
+      const isAnnual = selectedPlanId.toLowerCase().includes("annual");
+      const packageToBuy = isAnnual ? offerings.current.annual : offerings.current.monthly;
+
+      if (!packageToBuy) {
+        throw new Error("Selected plan is not available at the moment.");
+      }
+
+      // Trigger RevenueCat Web Checkout (redirects to Stripe)
+      await purchases.purchasePackage(packageToBuy);
+      
+      // The user will be redirected, but if they come back or it's a modal flow:
       setStep("install");
     } catch (err: any) {
+      console.error("Payment error:", err);
       setError(err.message || "An error occurred during payment.");
     } finally {
       setIsProcessing(false);
@@ -217,7 +239,7 @@ export default function DownloadModal({
             <div className="flex items-center gap-3">
               <Download className="w-6 h-6 text-brand-500" />
               <h2 className="text-xl font-bold font-display flex items-center gap-2">
-                {step === "install" ? "Install ListeningProjectLp" : (step === "account_setup" ? "Secure ListeningProjectLp Account" : (step === "payment" ? "Secure ListeningProjectLp Payment" : "Select Plan & Download"))}
+                {step === "install" ? "Install Listening Project" : (step === "account_setup" ? "Secure Listening Project Account" : (step === "payment" ? "Secure Listening Project Payment" : "Select Plan & Download"))}
                 <span className="text-[10px] text-gray-600 font-mono">v1.5-VIP-FIXED</span>
               </h2>
             </div>
@@ -389,36 +411,9 @@ export default function DownloadModal({
 
                   <div className="space-y-4">
                     <p className="text-sm text-gray-400">Membership identified for: <span className="text-white font-medium">{email}</span></p>
-
-                    <div className="border-t border-white/10 my-4 pt-4">
-                      <p className="text-xs text-gray-500 mb-3 uppercase tracking-wider font-bold">Card Information</p>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Card Number</label>
-                        <input
-                          type="text"
-                          placeholder="0000 0000 0000 0000"
-                          className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-400 mb-1">Expiry</label>
-                          <input
-                            type="text"
-                            placeholder="MM/YY"
-                            className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-400 mb-1">CVC</label>
-                          <input
-                            type="text"
-                            placeholder="123"
-                            className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    <p className="text-sm text-gray-400 mt-4">
+                      You will be redirected to our secure Stripe checkout page to complete your subscription.
+                    </p>
                   </div>
                 </div>
 
@@ -450,8 +445,8 @@ export default function DownloadModal({
                       </>
                     ) : (
                       <>
-                        <Download className="w-5 h-5" />
-                        Start 3-Day Free Trial & Download
+                        <CreditCard className="w-5 h-5" />
+                        Continue to Secure Checkout
                       </>
                     )}
                   </button>
@@ -478,7 +473,7 @@ export default function DownloadModal({
                 </div>
 
                 <div className="mb-8 p-6 bg-brand-600/10 border border-brand-500/20 rounded-xl text-center">
-                  <h3 className="text-lg font-semibold text-white mb-2">Install ListeningProjectLp</h3>
+                  <h3 className="text-lg font-semibold text-white mb-2">Install Listening Project</h3>
                   <p className="text-brand-200 mb-6 text-sm">
                     Download the actual language app for your Android device or open the web version.
                   </p>

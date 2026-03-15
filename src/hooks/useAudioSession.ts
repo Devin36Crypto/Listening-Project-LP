@@ -84,10 +84,11 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
         if (sessionRef.current && isRecording) {
             // Convert to base64
             const base64Data = btoa(String.fromCharCode(...new Uint8Array(int16Data.buffer)));
-            sessionRef.current.sendRealtimeInput([{
-                mimeType: "audio/pcm;rate=16000",
-                data: base64Data
-            }]);
+            sessionRef.current.then((session: any) => {
+                session.sendRealtimeInput({
+                    media: { data: base64Data, mimeType: 'audio/pcm;rate=16000' }
+                });
+            });
         }
       };
 
@@ -113,7 +114,16 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
 
   const disconnect = useCallback(async () => {
     // Close session
-    sessionRef.current = null;
+    if (sessionRef.current) {
+        sessionRef.current.then((session: any) => {
+            try {
+                session.close();
+            } catch (e) {
+                console.error("Error closing session:", e);
+            }
+        });
+        sessionRef.current = null;
+    }
     
     if (audioContextRef.current) {
         audioContextRef.current.suspend();
@@ -165,7 +175,7 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
 
     try {
       setError(null);
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
         throw new Error("Gemini API Key not found");
       }
@@ -177,8 +187,8 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
       currentSessionIdRef.current = newSessionId;
       clearLogs();
 
-      const session = await client.live.connect({
-        model: "gemini-1.5-flash-8b-exp-0924",
+      const sessionPromise = client.live.connect({
+        model: "gemini-2.5-flash-native-audio-preview-09-2025",
         callbacks: {
             onopen: () => {
                 setIsConnected(true);
@@ -218,13 +228,11 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
             speechConfig: {
                 voiceConfig: { prebuiltVoiceConfig: { voiceName: settings.voice || "Puck" } }
             },
-            systemInstruction: {
-                parts: [{ text: `You are a helpful translator and assistant. Your target language is ${settings.targetLanguage}. Translate what you hear or answer questions.` }]
-            }
+            systemInstruction: `You are a helpful translator and assistant. Your target language is ${settings.targetLanguage}. Translate what you hear or answer questions.`
         }
       });
 
-      sessionRef.current = session;
+      sessionRef.current = sessionPromise;
 
       // Initialize audio if not already
       if (!audioContextRef.current) {
@@ -302,7 +310,16 @@ export function useAudioSession({ settings }: UseAudioSessionProps) {
       if (playbackContextRef.current) {
         playbackContextRef.current.close();
       }
-      sessionRef.current = null;
+      if (sessionRef.current) {
+        sessionRef.current.then((session: any) => {
+            try {
+                session.close();
+            } catch (e) {
+                console.error("Error closing session on unmount:", e);
+            }
+        });
+        sessionRef.current = null;
+      }
     };
   }, []);
 

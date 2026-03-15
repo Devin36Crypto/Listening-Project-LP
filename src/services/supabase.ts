@@ -8,6 +8,42 @@ let supabaseInstance: any = null;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables. App will run in limited mode.');
+  // Provide a mock implementation for demo purposes
+  let mockSession: any = null;
+  let authListeners: any[] = [];
+  
+  supabaseInstance = {
+    auth: {
+      getSession: async () => ({ data: { session: mockSession }, error: null }),
+      onAuthStateChange: (cb: any) => {
+        authListeners.push(cb);
+        return { data: { subscription: { unsubscribe: () => {
+          authListeners = authListeners.filter(l => l !== cb);
+        } } } };
+      },
+      signUp: async ({ email }: any) => {
+        console.log("Mock sign up for", email);
+        const user = { id: 'mock-user-id', email };
+        mockSession = { user, access_token: 'mock-token' };
+        authListeners.forEach(cb => cb('SIGNED_IN', mockSession));
+        return { data: { user, session: mockSession }, error: null };
+      },
+      getUser: async () => ({ data: { user: mockSession?.user || null }, error: null }),
+      signOut: async () => {
+        console.log("Mock sign out");
+        mockSession = null;
+        authListeners.forEach(cb => cb('SIGNED_OUT', null));
+        window.location.reload();
+      }
+    },
+    from: () => ({
+      insert: async () => ({ error: null }),
+      select: () => ({
+        gte: async () => ({ count: 0, error: null }),
+        then: (cb: any) => cb({ count: 0, error: null })
+      })
+    })
+  };
 } else {
   try {
     supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);

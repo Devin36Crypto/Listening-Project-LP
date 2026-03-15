@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
+import { supabase } from "./services/supabase";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Features from "./components/Features";
@@ -19,7 +20,6 @@ const LegalDisclaimerModal = lazy(() => import("./components/LegalDisclaimerModa
 const SystemStatusModal = lazy(() => import("./components/SystemStatusModal"));
 const ListeningApp = lazy(() => import("./components/ListeningApp"));
 const DownloadModal = lazy(() => import("./components/DownloadModal"));
-import { supabase } from "./services/supabase";
 
 export default function App() {
   const [session, setSession] = useState<any>(null);

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { sendChatMessage } from './gemini';
 
 beforeAll(() => {
-  vi.stubEnv('VITE_GEMINI_API_KEY', 'test-key');
+  vi.stubEnv('GEMINI_API_KEY', 'test-key');
 });
 
 vi.mock('@google/genai', () => ({

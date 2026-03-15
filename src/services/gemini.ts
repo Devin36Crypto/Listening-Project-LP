@@ -11,8 +11,8 @@ export async function sendChatMessage(
   useThinking: boolean = false
 ): Promise<ChatResponse> {
   try {
-    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-    const modelName = "gemini-1.5-pro";
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const modelName = "gemini-3.1-pro-preview";
     
     const config: any = {
       systemInstruction: "You are the AI assistant for the 'Listening Project' app. Your goal is to help users understand the app, which is designed to improve active listening and communication skills. Be helpful, concise, and friendly. If the user asks complex questions about communication theory or psychology, use your deep reasoning capabilities.",
@@ -38,7 +38,7 @@ export async function sendChatMessage(
 
 export async function checkGeminiConnection(): Promise<boolean> {
   try {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return false;
     return true; 
   } catch (e) {
@@ -48,9 +48,9 @@ export async function checkGeminiConnection(): Promise<boolean> {
 
 export async function generateSpeech(text: string): Promise<string | null> {
   try {
-    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text }] }],
       config: {
         responseModalities: [Modality.AUDIO],
