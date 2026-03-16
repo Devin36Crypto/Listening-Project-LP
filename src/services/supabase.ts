@@ -60,11 +60,15 @@ const createMockSupabaseClient = () => {
   };
 };
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase environment variables. App will run in limited mode.');
+if (!supabaseUrl || !supabaseAnonKey || supabaseUrl === '') {
+  console.warn('Missing or invalid Supabase environment variables. App will run in limited mode.');
   supabaseInstance = createMockSupabaseClient();
 } else {
   try {
+    // Basic URL validation
+    const validUrl = supabaseUrl.startsWith('http') || supabaseUrl.startsWith('/');
+    if (!validUrl) throw new Error('Invalid Supabase URL format');
+    
     supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
   } catch (err) {
     console.error('Failed to initialize Supabase:', err);
