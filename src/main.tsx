@@ -35,10 +35,14 @@ if (!rootElement) {
     setTimeout(() => {
       const fallback = document.getElementById('fallback-ui');
       if (fallback) {
-        console.log('MAIN.TSX: Clearning fallback UI');
-        fallback.style.display = 'none';
+        console.log('MAIN.TSX: Clearing fallback UI');
+        // Use opacity for smoother transition if possible, or just hide
+        fallback.style.opacity = '0';
+        setTimeout(() => {
+            fallback.style.display = 'none';
+        }, 300);
       }
-    }, 100);
+    }, 200);
 
   } catch (error) {
     console.error('MAIN.TSX: Fatal rendering exception:', error);

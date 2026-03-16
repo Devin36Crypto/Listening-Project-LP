@@ -1,15 +1,24 @@
 import { createClient } from '@supabase/supabase-js';
 
 const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || (isLocal ? `${window.location.origin}/supabase-api` : '');
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Safely get env variables with prioritized loading
+const getEnv = (key: string) => {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
+    return import.meta.env[key];
+  }
+  return '';
+};
+
+const supabaseUrl = getEnv('VITE_SUPABASE_URL') || (isLocal ? `${window.location.origin}/supabase-api` : '');
+const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('SUPABASE ERROR: Missing environment variables. Please check Vercel settings for VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+  console.warn('SUPABASE CONFIG: Missing environment variables. Using mock client for stability.');
 }
 
-console.log('SUPABASE: URL =', supabaseUrl);
-console.log('SUPABASE: Key present =', !!supabaseAnonKey);
+console.log('SUPABASE: URL set =', !!supabaseUrl);
+console.log('SUPABASE: Key set =', !!supabaseAnonKey);
 
 // Initialize Supabase only if keys are present to prevent top-level crashes
 let supabaseInstance: any = null;
