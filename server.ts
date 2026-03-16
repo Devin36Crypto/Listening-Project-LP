@@ -121,9 +121,9 @@ async function startServer() {
       });
     }
 
-    const host = '127.0.0.1';
+    const host = 'localhost';
     server = app.listen(3000, host, () => {
-      console.log(`Landing Page (Port 3000) running on http://${host}:3000`);
+      console.log(`\x1b[32m✔ Landing Page server ready at http://${host}:3000\x1b[0m`);
     }).on('error', (err: any) => {
       if (err.code === 'EADDRINUSE') {
         console.error(`Port 3000 is already in use.`);
