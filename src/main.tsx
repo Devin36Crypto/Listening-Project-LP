@@ -1,4 +1,4 @@
-console.log('MAIN.TSX: Initialization started - Version 1.0.1');
+console.log('MAIN.TSX: Initialization started - Version 1.0.2');
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
