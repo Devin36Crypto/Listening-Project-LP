@@ -119,50 +119,52 @@ export default function Pricing({ onPlanSelect }: PricingProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
           {plans.map((plan, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.1, duration: 0.6 }}
               viewport={{ once: true }}
-              className={`relative p-8 rounded-3xl border flex flex-col ${plan.popular
-                ? "bg-white/10 border-brand-500/50 shadow-2xl shadow-brand-500/10"
-                : "bg-white/5 border-white/10 hover:bg-white/[0.07] transition-colors"
+              className={`relative p-10 rounded-[2.5rem] border flex flex-col transition-all duration-500 hover:scale-[1.03] ${plan.popular
+                ? "glass-panel !bg-brand-500/[0.05] border-brand-500/50 shadow-2xl shadow-brand-500/10"
+                : "glass-panel border-white/10"
                 }`}
             >
+              <div className="noise-overlay" />
+
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-400 to-brand-600 text-black px-4 py-1 rounded-full text-sm font-bold shadow-lg shadow-brand-500/30">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-400 to-brand-600 text-black px-6 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-brand-500/30">
                   Best Value
                 </div>
               )}
 
-              <div className="mb-8 text-center">
-                <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+              <div className="mb-10 text-center">
+                <h3 className="text-xl font-bold mb-4 uppercase tracking-[0.2em] text-gray-400">{plan.name}</h3>
                 <div className="flex items-center justify-center gap-1 mb-2">
-                  <span className="text-5xl font-bold font-display">{plan.price}</span>
-                  <span className="text-gray-400 text-lg">{plan.period}</span>
+                  <span className="text-6xl font-black font-display tracking-tight">{plan.price}</span>
+                  <span className="text-gray-500 text-xl font-light">{plan.period}</span>
                 </div>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-400 text-sm font-light leading-relaxed">
                   {plan.description}
                 </p>
               </div>
 
-              <div className="flex-1 space-y-4 mb-8">
-                <div className="bg-brand-500/5 rounded-xl p-4 mb-6 border border-brand-500/10">
-                  <div className="flex items-center gap-3 text-brand-400 font-medium">
+              <div className="flex-1 space-y-5 mb-10">
+                <div className="bg-brand-500/5 rounded-2xl p-5 mb-8 border border-brand-500/10 backdrop-blur-sm">
+                  <div className="flex items-center gap-4 text-brand-400 font-bold text-sm">
                     <Calendar className="w-5 h-5" />
-                    <span>3-Day Free Trial Included</span>
+                    <span>3-Day Free Trial</span>
                   </div>
-                  <p className="text-xs text-brand-400/70 mt-1 ml-8">
-                    You won't be charged until your trial ends.
+                  <p className="text-[11px] text-brand-400/60 mt-1.5 ml-9 leading-tight">
+                    Full access. No charges until day 4.
                   </p>
                 </div>
 
                 {plan.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3 text-sm text-gray-200">
-                    <Check className="w-5 h-5 text-brand-400 shrink-0" />
+                  <div key={i} className="flex items-start gap-4 text-sm text-gray-300 font-light">
+                    <Check className="w-5 h-5 text-brand-400 shrink-0 mt-0.5" />
                     <span>{feature}</span>
                   </div>
                 ))}
@@ -170,16 +172,16 @@ export default function Pricing({ onPlanSelect }: PricingProps) {
 
               <button
                 onClick={() => onPlanSelect?.(plan.variant as any, plan.planId)}
-                className={`w-full py-4 rounded-xl font-bold transition-all text-lg shadow-lg ${plan.popular
+                className={`w-full py-5 rounded-2xl font-black transition-all text-sm uppercase tracking-widest shadow-2xl ${plan.popular
                     ? "bg-gradient-to-br from-brand-400 to-brand-600 text-black hover:scale-[1.02] shadow-brand-500/25"
-                    : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
+                    : "bg-white/[0.05] text-white hover:bg-white/10 border border-white/10"
                   }`}
               >
                 {plan.cta}
               </button>
 
-              <p className="text-center text-xs text-gray-500 mt-4">
-                Renews automatically. Cancel anytime.
+              <p className="text-center text-[10px] uppercase font-bold tracking-widest text-gray-600 mt-6">
+                Cancel Anytime
               </p>
             </motion.div>
           ))}

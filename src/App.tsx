@@ -20,6 +20,7 @@ const LegalDisclaimerModal = lazy(() => import("./components/LegalDisclaimerModa
 const SystemStatusModal = lazy(() => import("./components/SystemStatusModal"));
 const ListeningApp = lazy(() => import("./components/ListeningApp"));
 const DownloadModal = lazy(() => import("./components/DownloadModal"));
+import NeuralGlow from "./components/NeuralGlow";
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
@@ -85,37 +86,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a1d22] text-white font-sans selection:bg-brand-500/30 overflow-x-hidden relative">
-      {/* Dynamic Background Atmosphere with Prism Icons */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <img 
-          src="/prism-logo.png" 
-          alt="" 
-          className="absolute top-[-5%] left-[-5%] w-[40%] h-[40%] opacity-[0.08] blur-[40px] animate-float mix-blend-screen" 
-        />
-        <img 
-          src="/prism-logo.png" 
-          alt="" 
-          className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] opacity-[0.05] blur-[60px] animate-float mix-blend-screen [animation-delay:-5s]" 
-        />
-        <img 
-          src="/prism-logo.png" 
-          alt="" 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] opacity-[0.03] blur-[100px] animate-neural-glow mix-blend-screen" 
-        />
-        
-        {/* Floating branded elements for premium feel */}
-        <img 
-          src="/prism-logo.png" 
-          alt="" 
-          className="absolute top-[15%] right-[10%] w-40 h-40 opacity-15 blur-[1px] animate-float [animation-delay:-4s]" 
-        />
-        <img 
-          src="/prism-logo.png" 
-          alt="" 
-          className="absolute bottom-[20%] left-[5%] w-56 h-56 opacity-10 blur-[3px] animate-float [animation-delay:-12s]" 
-        />
-      </div>
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-brand-500/30 overflow-x-hidden relative">
+      <NeuralGlow />
 
       <div className="relative z-10 transition-opacity duration-500">
         <Navbar onOpenDownload={() => handleOpenDownload("auto")} />

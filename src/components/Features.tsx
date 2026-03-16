@@ -36,12 +36,17 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 bg-black/50 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 font-display">Designed for Clarity</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Everything you need to become a better listener, powered by next-generation technology.
+    <section id="features" className="py-32 relative overflow-hidden">
+      <div className="noise-overlay" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-24">
+          <h2 className="text-4xl md:text-6xl font-black mb-6 font-display tracking-tight leading-[1.1]">
+            Experience Pure <span className="text-brand-400">Clarity</span>
+          </h2>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
+            Every feature is meticulously crafted to bridge the gap between spoken words and true emotional understanding.
           </p>
         </div>
 
@@ -49,28 +54,26 @@ export default function Features() {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.1, duration: 0.6 }}
               viewport={{ once: true }}
-              className="p-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group"
+              className="glass-panel p-10 rounded-[2.5rem] group hover:border-brand-500/30 transition-all duration-500 hover:scale-[1.02]"
             >
-              <div className="w-14 h-14 bg-brand-500/10 rounded-xl flex items-center justify-center mb-6 text-brand-400 relative overflow-hidden">
-                <img 
-                  src="/prism-master-verified.webp" 
-                  alt="" 
-                  className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity"
-                />
-                <feature.icon className="w-6 h-6 relative z-10" />
+              <div className="w-16 h-16 bg-brand-500/10 rounded-3xl flex items-center justify-center mb-8 text-brand-400 relative overflow-hidden group-hover:bg-brand-500/20 transition-all">
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <feature.icon className="w-8 h-8 relative z-10 transition-transform group-hover:scale-110" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-gray-400 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 tracking-tight">{feature.title}</h3>
+              <p className="text-gray-400 leading-relaxed font-light">
                 {feature.description}
               </p>
             </motion.div>
           ))}
         </div>
       </div>
+      
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
     </section>
   );
 }

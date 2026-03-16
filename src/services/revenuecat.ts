@@ -36,8 +36,8 @@ if (!revenueCatApiKey) {
   } catch (err) {
     // If it's the specific "Invalid API key" error on localhost, we can downgrade to a warning
     const errorMessage = err instanceof Error ? err.message : String(err);
-    if (isLocal && errorMessage.includes('Invalid API key')) {
-      console.warn('RevenueCat: Invalid API key for localhost. Subscription features will be disabled.');
+    if (isLocal && (errorMessage.includes('Invalid API key') || errorMessage.includes('Missing API key'))) {
+      // Logic for missing key on localhost: do nothing and allow flow to skip configuration
     } else {
       console.error('Failed to initialize RevenueCat:', err);
     }

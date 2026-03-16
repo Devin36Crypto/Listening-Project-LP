@@ -78,36 +78,38 @@ export default function Testimonials() {
                 key={`${testimonial.author}-${index}`}
                 layout
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                className="bg-white/5 border border-white/10 p-8 rounded-2xl relative group hover:bg-white/[0.07] transition-colors"
+                transition={{ duration: 0.5 }}
+                className="glass-panel p-10 rounded-[2rem] relative group hover:border-brand-500/30 transition-all duration-500 hover:scale-[1.02]"
               >
-                <Quote className="absolute top-8 right-8 w-8 h-8 text-brand-500/10 group-hover:text-brand-500/40 transition-colors" style={{ color: 'rgba(0,229,255,0.1)' }} />
+                <div className="absolute inset-0 noise-overlay opacity-0 group-hover:opacity-[0.05]" />
+                <Quote className="absolute top-8 right-8 w-12 h-12 text-brand-500/5 group-hover:text-brand-500/20 transition-colors" />
 
-                <div className="flex items-center gap-4 mb-6">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.author}
-                    className="w-12 h-12 rounded-full object-cover border border-white/10"
-                    referrerPolicy="no-referrer"
-                    loading="lazy"
-                    width="48"
-                    height="48"
-                  />
+                <div className="flex items-center gap-5 mb-8">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-brand-400 blur-md opacity-0 group-hover:opacity-20 transition-opacity rounded-full scale-120" />
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.author}
+                      className="w-14 h-14 rounded-full object-cover border border-white/10 relative z-10"
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                    />
+                  </div>
                   <div>
-                    <h4 className="font-semibold text-white">{testimonial.author}</h4>
-                    <p className="text-sm text-brand-400/80">{testimonial.role}</p>
+                    <h4 className="font-bold text-white text-lg tracking-tight">{testimonial.author}</h4>
+                    <p className="text-sm font-medium text-brand-400/80 tracking-widest uppercase">{testimonial.role}</p>
                   </div>
                 </div>
 
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-1 mb-6">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                    <Star key={i} className="w-3.5 h-3.5 fill-brand-400 text-brand-400 opacity-80" />
                   ))}
                 </div>
 
-                <p className="text-gray-300 leading-relaxed italic">
+                <p className="text-gray-300 leading-relaxed font-light text-lg">
                   "{testimonial.quote}"
                 </p>
               </motion.div>
